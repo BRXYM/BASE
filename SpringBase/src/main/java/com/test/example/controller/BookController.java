@@ -1,13 +1,11 @@
 package com.test.example.controller;
 
 
+import com.test.example.domain.Book;
 import com.test.example.service.BookService;
 import com.test.example.utils.Result;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin
 @RestController
@@ -19,5 +17,19 @@ public class BookController {
     @GetMapping("/getAllBooks")
     public Result getAllBooks() {
         return bookService.getAllBooks();
+    }
+    @PostMapping("/addBook")
+    public Result addBook(@RequestBody Book book) {
+        return bookService.addBook(book);
+    }
+
+    @DeleteMapping("/deleteBook")
+    public Result deleteBook(@RequestBody Book book) {
+        return bookService.deleteBook(book);
+    }
+
+    @PostMapping("/updateBook")
+    public Result updateBook(@RequestBody Book book) {
+        return bookService.updateBook(book);
     }
 }

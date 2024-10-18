@@ -8,7 +8,7 @@ public interface BookService {
 
     Result addBook(Book book);
 
-    Result deleteBook(Integer bookId);
+    Result deleteBook(Book book);
 
     Result updateBook(Book book);
 }
