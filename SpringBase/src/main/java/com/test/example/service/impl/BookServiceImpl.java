@@ -6,7 +6,6 @@ import com.test.example.service.BookService;
 import com.test.example.utils.BookUtils;
 import com.test.example.utils.Result;
 import jakarta.annotation.Resource;
-import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,9 +39,11 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Result deleteBook(Book book) {
+//        验证当前传参对象是否存在
         if(bookMapper.selectById(book.getBookId()) == null) {
             return new Result(200,"003",book,"对象不存在");
         }
+//        暂存为直接物理删除，后续修改为逻辑删除
         Integer i = bookMapper.deleteById(book.getBookId());
         if (i > 0) {
             return new Result(200,"001",i,"删除成功");
@@ -58,11 +59,14 @@ public class BookServiceImpl implements BookService {
             return new Result(200,"003",book,"对象不存在");
         }
         BookUtils bookUtils = new BookUtils();
-        int i = bookMapper.updateById(bookUtils.replaceBookValues(updateBook, book));
+        int i = 0;
+        try{
+            i = bookMapper.updateById(bookUtils.replaceBookValues(updateBook, book));
+        }catch (Exception ignored) {}
         if (i > 0) {
             return new Result(200,"001",updateBook,"修改成功");
         }else {
-            return new Result(200,"002",updateBook,"修改失败");
+            return new Result(200,"002",book,"修改失败");
         }
     }
 }

@@ -1,7 +1,16 @@
 <script setup lang="ts">
+import { useCounterStore } from '@/stores/counter';
+import { storeToRefs } from 'pinia';
+const counter = useCounterStore()
+// 基本数据类型转换为响应式后解构
+const {count,doubleCount} = storeToRefs(counter)
+// 存在pinia中的方法直接结构
+const { increment } = counter
+
 defineProps<{
   msg: string
 }>()
+
 </script>
 
 <template>
@@ -12,6 +21,11 @@ defineProps<{
       <a href="https://vitejs.dev/" target="_blank" rel="noopener">Vite</a> +
       <a href="https://vuejs.org/" target="_blank" rel="noopener">Vue 3</a>. What's next?
     </h3>
+
+    <h1>{{ count }}</h1>
+    <h1>{{ doubleCount }}</h1>
+
+    <button @click="increment()">测试</button>
   </div>
 </template>
 
