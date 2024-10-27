@@ -10,7 +10,7 @@ public class Result {
 
     private String code;
 
-    private Object Object;
+    private Object list;
 
     private String message;
 
