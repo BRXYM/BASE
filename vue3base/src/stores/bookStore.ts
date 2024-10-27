@@ -5,7 +5,7 @@ export interface Book {
   bookId:number,
   bookUserId:number,
   bookClassroomId:number,
-  bookWaiterId:number,
+  bookWaiterId:string,
   audit:string,
   bookStartTime:string,
   bookEndTime:string,
@@ -26,6 +26,7 @@ export const useBookStore = defineStore('book', () => {
   function initBookList(list: Book[]): void {
     const updatedList = list.map((book) => ({
       ...book,
+      bookWaiterId: String(book.bookWaiterId) === "0" ? '未审核' : String(book.bookWaiterId),
       enable: String(book.enable) === '1' ? '存在' : '删除'
     }))
     setBookList(updatedList)
