@@ -27,5 +27,7 @@ public class Book {
     private String bookStartTime;
     @TableField("book_end_time")
     private String bookEndTime;
+    @TableField("Enable")
+    private int Enable;
 
 }

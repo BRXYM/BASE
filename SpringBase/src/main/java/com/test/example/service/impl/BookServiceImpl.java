@@ -40,11 +40,13 @@ public class BookServiceImpl implements BookService {
     @Override
     public Result deleteBook(Book book) {
 //        验证当前传参对象是否存在
-        if(bookMapper.selectById(book.getBookId()) == null) {
+        Book newBook = bookMapper.selectById(book.getBookId());
+        if(newBook == null) {
             return new Result(200,"003",book,"对象不存在");
         }
+        newBook.setEnable(0);
 //        暂存为直接物理删除，后续修改为逻辑删除
-        Integer i = bookMapper.deleteById(book.getBookId());
+        Integer i = bookMapper.updateById(newBook);
         if (i > 0) {
             return new Result(200,"001",i,"删除成功");
         } else {
