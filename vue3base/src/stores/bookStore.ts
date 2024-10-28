@@ -103,9 +103,6 @@ export const useBookStore = defineStore('book', () => {
     }
   }
 
-  function updateBooK(){
-    
-  }
 
   return { bookList,getBookListById,addBook,initBookList,deleteBookList,updateBookList }
 })

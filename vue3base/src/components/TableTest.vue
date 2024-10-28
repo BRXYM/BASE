@@ -24,7 +24,7 @@
     </el-table-column>
   </el-table>
 
-  <el-dialog v-model="editVisible" title="修改预定信息" width="500">
+  <el-dialog v-model="editVisible" :title="updatebook.bookId" width="500">
     <el-form :model="updatebook">
       <el-form-item label="用户ID" :label-width="formLabelWidth">
         <el-input v-model="updatebook.bookUserId" autocomplete="off" />
