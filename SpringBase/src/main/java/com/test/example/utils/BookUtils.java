@@ -10,8 +10,9 @@ public class BookUtils {
         book.setBookClassroomId(alterBook.getBookClassroomId() != null? alterBook.getBookClassroomId(): book.getBookClassroomId());
         book.setBookWaiterId(alterBook.getBookWaiterId() != null? alterBook.getBookWaiterId(): book.getBookWaiterId());
         book.setAudit(!Objects.equals(alterBook.getAudit(), "") ? alterBook.getAudit(): book.getAudit());
-        book.setBookStartTime(!Objects.equals(alterBook.getBookStartTime(), "") ? alterBook.getBookStartTime(): book.getBookStartTime());
-        book.setBookEndTime(!Objects.equals(alterBook.getBookEndTime(), "") ? alterBook.getBookEndTime(): book.getBookEndTime());
+        book.setBookTime(!Objects.equals(alterBook.getBookTime(), "") ? alterBook.getBookTime(): book.getBookTime());
+        book.setEnable(!Objects.equals(alterBook.getEnable(), "") ? alterBook.getEnable() : book.getEnable());
+//        book.setBookEndTime(!Objects.equals(alterBook.getBookEndTime(), "") ? alterBook.getBookEndTime(): book.getBookEndTime());
         System.out.println("New"+book);
         return book;
     }

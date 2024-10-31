@@ -44,7 +44,7 @@ public class BookServiceImpl implements BookService {
         if(newBook == null) {
             return new Result(200,"003",book,"对象不存在");
         }
-        newBook.setEnable(0);
+        newBook.setEnable(false);
 //        暂存为直接物理删除，后续修改为逻辑删除
         Integer i = bookMapper.updateById(newBook);
         if (i > 0) {

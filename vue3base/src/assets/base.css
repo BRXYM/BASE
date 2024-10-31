@@ -84,3 +84,11 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+
+body {
+  -ms-overflow-style: none;  /* IE 和 Edge */
+  scrollbar-width: none;  /* Firefox */
+  overflow: -moz-scrollbars-none; /* Older Firefox browsers */
+  overflow-y: scroll; /* 保持内容可滚动 */
+}

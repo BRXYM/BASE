@@ -23,13 +23,14 @@ public class BookController {
         return bookService.addBook(book);
     }
 
-    @DeleteMapping("/deleteBook")
+    @PostMapping("/deleteBook")
     public Result deleteBook(@RequestBody Book book) {
         return bookService.deleteBook(book);
     }
 
     @PostMapping("/updateBook")
     public Result updateBook(@RequestBody Book book) {
+        System.out.println(book);
         return bookService.updateBook(book);
     }
 }

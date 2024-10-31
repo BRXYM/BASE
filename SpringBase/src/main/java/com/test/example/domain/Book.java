@@ -23,11 +23,9 @@ public class Book {
     private Integer bookWaiterId;
     @TableField("audit")
     private String audit;
-    @TableField("book_start_time")
-    private String bookStartTime;
-    @TableField("book_end_time")
-    private String bookEndTime;
+    @TableField("book_time")
+    private String bookTime;
     @TableField("Enable")
-    private int Enable;
+    private Boolean Enable;
 
 }
