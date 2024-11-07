@@ -10,23 +10,24 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 用户表
+ * 模组表
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("hysu")
-public class User {
-    @TableId(value = "hysUid", type = IdType.AUTO)
+@TableName("hysmo")
+public class Mode {
+
+    @TableId(value = "hysMOid", type = IdType.AUTO)
+    private int MOid;
+    @TableField("hysMOidT")
+    private int Tid;
+    @TableField("hysMOidU")
     private int Uid;
-    @TableField("hysUname")
-    private String Uname;
-    @TableField("hysUphone")
-    private String Uphone;
-    @TableField("hysUqq")
-    private String Uqq;
-    @TableField("hysUmile")
-    private String Umile;
-    @TableField("hysUpass")
-    private String Upass;
+    @TableField("hysMOtime")
+    private String time;
+    @TableField("hysMOtxt")
+    private String txt;
+    @TableField("hysMOsum")
+    private int sum;
 }

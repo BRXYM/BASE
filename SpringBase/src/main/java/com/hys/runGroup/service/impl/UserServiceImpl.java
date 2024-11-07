@@ -4,11 +4,19 @@ import com.hys.runGroup.domain.User;
 import com.hys.runGroup.mapper.UserMapper;
 import com.hys.runGroup.service.UserService;
 import com.hys.runGroup.utils.Result;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+
+/**
+ * 用户表实现
+ */
+@Service
 public class UserServiceImpl implements UserService {
 
+    @Resource
     private UserMapper userMapper;
 
     @Override
@@ -23,11 +31,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Result addUser(User user) {
-        Integer i = userMapper.insert(user);
+        int i = userMapper.insert(user);
         if (i > 0) {
-            return new Result(200, "001", i, "添加成功");
+            return new Result(200, "001", userMapper.selectById(user.getUid()), "添加成功");
         }else {
-            return new Result(200, "002", i, "添加失败");
+            return new Result(200, "002", user, "添加失败");
         }
     }
 
@@ -68,7 +76,7 @@ public class UserServiceImpl implements UserService {
             return new Result(200,"003",user,"用户id错误");
         }
         if (login.getUpass().equals(user.getUpass())) {
-            return new Result(200,"003",user,"用户id错误");
+            return new Result(200,"001",login,"登陆成功");
         } else {
             return new Result(200,"002",user,"密码错误");
         }

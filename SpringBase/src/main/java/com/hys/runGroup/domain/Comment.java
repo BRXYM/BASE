@@ -9,24 +9,24 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 /**
- * 用户表
+ * 评论表
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("hysu")
-public class User {
-    @TableId(value = "hysUid", type = IdType.AUTO)
+@TableName("hysc")
+public class Comment {
+
+    @TableId(value = "hysCid", type = IdType.AUTO)
+    private int Cid;
+    @TableField("hysCidU")
     private int Uid;
-    @TableField("hysUname")
-    private String Uname;
-    @TableField("hysUphone")
-    private String Uphone;
-    @TableField("hysUqq")
-    private String Uqq;
-    @TableField("hysUmile")
-    private String Umile;
-    @TableField("hysUpass")
-    private String Upass;
+    @TableField("hysCidMO")
+    private int MOid;
+    @TableField("hysCtxt")
+    private String txt;
+    @TableField("hysCtime")
+    private String time;
 }
