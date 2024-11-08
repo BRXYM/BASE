@@ -16,13 +16,13 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `hysadmin`
+-- Table structure for table `hysa`
 --
 
-DROP TABLE IF EXISTS `hysadmin`;
+DROP TABLE IF EXISTS `hysa`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `hysadmin` (
+CREATE TABLE `hysa` (
   `hysAid` int NOT NULL AUTO_INCREMENT COMMENT '管理员id',
   `hysAname` varchar(50) DEFAULT NULL COMMENT '管理员姓名',
   `hysAphone` varchar(11) DEFAULT NULL COMMENT '管理员手机号',
@@ -33,12 +33,12 @@ CREATE TABLE `hysadmin` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `hysadmin`
+-- Dumping data for table `hysa`
 --
 
-LOCK TABLES `hysadmin` WRITE;
-/*!40000 ALTER TABLE `hysadmin` DISABLE KEYS */;
-/*!40000 ALTER TABLE `hysadmin` ENABLE KEYS */;
+LOCK TABLES `hysa` WRITE;
+/*!40000 ALTER TABLE `hysa` DISABLE KEYS */;
+/*!40000 ALTER TABLE `hysa` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -117,8 +117,10 @@ CREATE TABLE `hysmo` (
   `hysMOsum` int DEFAULT NULL COMMENT '收藏数',
   PRIMARY KEY (`hysMOid`),
   KEY `hysMO_id_T_fk` (`hysMOidT`),
-  CONSTRAINT `hysMO_id_T_fk` FOREIGN KEY (`hysMOidT`) REFERENCES `hyst` (`hysTid`)
-) ENGINE=InnoDB AUTO_INCREMENT=20000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='模组表';
+  KEY `hysmo_id_U_fk` (`hysMOidU`),
+  CONSTRAINT `hysMO_id_T_fk` FOREIGN KEY (`hysMOidT`) REFERENCES `hyst` (`hysTid`),
+  CONSTRAINT `hysmo_id_U_fk` FOREIGN KEY (`hysMOidU`) REFERENCES `hysu` (`hysUid`)
+) ENGINE=InnoDB AUTO_INCREMENT=20002 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='模组表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -127,6 +129,7 @@ CREATE TABLE `hysmo` (
 
 LOCK TABLES `hysmo` WRITE;
 /*!40000 ALTER TABLE `hysmo` DISABLE KEYS */;
+INSERT INTO `hysmo` VALUES (20000,60000,10000,'2024-11-07 14:49:29','这里是情感本',20),(20001,60001,10001,'2024-11-07 14:49:55','这里是推理本',30);
 /*!40000 ALTER TABLE `hysmo` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -170,7 +173,7 @@ CREATE TABLE `hyst` (
   `hysTid` int NOT NULL AUTO_INCREMENT COMMENT '分类ID',
   `hysTname` varchar(200) DEFAULT NULL COMMENT '分类名',
   PRIMARY KEY (`hysTid`)
-) ENGINE=InnoDB AUTO_INCREMENT=60000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='模组分类';
+) ENGINE=InnoDB AUTO_INCREMENT=60002 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='模组分类';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -179,6 +182,7 @@ CREATE TABLE `hyst` (
 
 LOCK TABLES `hyst` WRITE;
 /*!40000 ALTER TABLE `hyst` DISABLE KEYS */;
+INSERT INTO `hyst` VALUES (60000,'情感'),(60001,'推理');
 /*!40000 ALTER TABLE `hyst` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -190,14 +194,14 @@ DROP TABLE IF EXISTS `hysu`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `hysu` (
-  `hysUid` int NOT NULL COMMENT '用户ID',
+  `hysUid` int NOT NULL AUTO_INCREMENT COMMENT '用户ID',
   `hysUname` varchar(200) DEFAULT NULL COMMENT '用户名',
   `hysUphone` varchar(11) DEFAULT NULL COMMENT '手机号',
   `hysUqq` varchar(20) DEFAULT NULL COMMENT 'QQ号',
   `hysUmile` varchar(50) DEFAULT NULL COMMENT '邮箱',
   `hysUpass` varchar(50) DEFAULT NULL COMMENT '密码',
   PRIMARY KEY (`hysUid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户表';
+) ENGINE=InnoDB AUTO_INCREMENT=10006 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -206,6 +210,7 @@ CREATE TABLE `hysu` (
 
 LOCK TABLES `hysu` WRITE;
 /*!40000 ALTER TABLE `hysu` DISABLE KEYS */;
+INSERT INTO `hysu` VALUES (10000,'胡芸殊','12345678911','1234567','1234@123.123','123456'),(10001,'白羊','12345678911','1234567','1234@123.123','123456'),(10003,'摩羯','12345678911','1234567','1234@123.123','123456'),(10004,'摩羯','123123','123213','123123','123456'),(10005,'','','','','');
 /*!40000 ALTER TABLE `hysu` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -218,4 +223,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-11-06 14:51:56
+-- Dump completed on 2024-11-08 19:15:32
