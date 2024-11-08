@@ -6,17 +6,17 @@
       label-width="auto"
     >
       <el-form-item label="用户ID" prop="userid">
-        <el-input v-model="userForm.userid" autocomplete="off" />
+        <el-input v-model="userForm.uid" autocomplete="off" />
       </el-form-item>
       <el-form-item label="密码" prop="password">
         <el-input
-          v-model="userForm.password"
+          v-model="userForm.upass"
           type="password"
           autocomplete="off"
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="login()">
+        <el-button type="primary" @click="login(userForm)">
           登录
         </el-button>
         <el-button @click="clear()">清除</el-button>
@@ -25,24 +25,38 @@
   </template>
   
   <script lang="ts" setup>
-  import {  ref } from 'vue'
+  import {  ref,onBeforeMount } from 'vue'
+  import { useUserStore } from '@/stores/user'; 
+  import { storeToRefs } from 'pinia'
+
+
+  import type { User } from '@/stores/user'
+  const user = useUserStore()
+
+  const { login } = (user)
   
 
-  const userForm = ref({
-    userid: '',
-    password: ''
+  const userForm = ref<User>({
+    uid: null,
+    upass: "",
+    uqq: "",
+    umile: "",
+    uphone: "",
+    uname: ""
   })
 
   function clear(){
-    userForm.value = {
-    userid: '',
-    password: ''
-  }
+    userForm.value.uid = null
+    userForm.value.upass = ""
+    userForm.value.uqq = ""
+    userForm.value.umile = ""
+    userForm.value.uphone = ""
+    userForm.value.uname = ""
   }
 
-  function login() {
-    console.log(userForm)
-  }
+  onBeforeMount(() => {
+    clear()
+  })
 
   </script>
   
