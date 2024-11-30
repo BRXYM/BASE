@@ -6,6 +6,7 @@ import com.ljf.dts.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/user")
 public class LjfUserController {
@@ -19,8 +20,9 @@ public class LjfUserController {
     }
 
     @PostMapping("/login")
-    public Result login(@RequestParam String phone, @RequestParam String password) {
-        return ljfUserService.login(phone, password);
+    public Result login(@RequestBody LjfUser user) {
+        System.out.println(user);
+        return ljfUserService.login(user.getUser_phone(), user.getUser_psword());
     }
 
     @PostMapping("/add")
@@ -34,8 +36,8 @@ public class LjfUserController {
     }
 
     @PostMapping("/delete")
-    public Result deleteUser(@RequestParam Integer id) {
-        return ljfUserService.deleteUser(id);
+    public Result deleteUser(@RequestBody LjfUser user) {
+        return ljfUserService.deleteUser(user.getUser_id());
     }
 
     @GetMapping("/{id}")
