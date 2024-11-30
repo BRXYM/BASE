@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ljf.dts.mapper.LjfAdsMapper">
+
+    <resultMap id="BaseResultMap" type="com.ljf.dts.domain.LjfAds">
+            <id property="ads_id" column="ljf_ads_id" jdbcType="INTEGER"/>
+            <result property="ads_txt" column="ljf_ads_txt" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ljf_ads_id,ljf_ads_txt
+    </sql>
+</mapper>

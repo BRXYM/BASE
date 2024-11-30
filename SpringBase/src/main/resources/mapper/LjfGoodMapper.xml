@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ljf.dts.mapper.LjfGoodMapper">
+
+    <resultMap id="BaseResultMap" type="com.ljf.dts.domain.LjfGood">
+            <id property="good_id" column="ljf_good_id" jdbcType="INTEGER"/>
+            <result property="good_sell_id" column="ljf_good_sell_id" jdbcType="INTEGER"/>
+            <result property="good_name" column="ljf_good_name" jdbcType="VARCHAR"/>
+            <result property="good_num" column="ljf_good_num" jdbcType="INTEGER"/>
+            <result property="good_txt" column="ljf_good_txt" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ljf_good_id,ljf_good_sell_id,ljf_good_name,
+        ljf_good_num,ljf_good_txt
+    </sql>
+</mapper>

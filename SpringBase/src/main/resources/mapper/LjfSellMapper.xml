@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ljf.dts.mapper.LjfSellMapper">
+
+    <resultMap id="BaseResultMap" type="com.ljf.dts.domain.LjfSell">
+            <id property="sell_id" column="ljf_sell_id" jdbcType="INTEGER"/>
+            <result property="sell_phone" column="ljf_sell_phone" jdbcType="VARCHAR"/>
+            <result property="sell_psword" column="ljf_sell_psword" jdbcType="VARCHAR"/>
+            <result property="sell_name" column="ljf_sell_name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ljf_sell_id,ljf_sell_phone,ljf_sell_psword,
+        ljf_sell_name
+    </sql>
+</mapper>
