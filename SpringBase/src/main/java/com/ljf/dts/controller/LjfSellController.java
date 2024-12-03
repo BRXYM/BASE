@@ -31,7 +31,7 @@ public class LjfSellController {
     }
 
     @PostMapping("/delete")
-    public Result deleteSell(@RequestParam Integer id) {
-        return ljfSellService.deleteSell(id);
+    public Result deleteSell(@RequestBody LjfSell sell) {
+        return ljfSellService.deleteSell(sell.getSell_id());
     }
 }

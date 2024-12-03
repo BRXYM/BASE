@@ -31,7 +31,7 @@ public class LjfOrderController {
     }
 
     @PostMapping("/delete")
-    public Result deleteOrder(@RequestParam Integer id) {
-        return ljfOrderService.deleteOrder(id);
+    public Result deleteOrder(@RequestBody LjfOrder order) {
+        return ljfOrderService.deleteOrder(order.getOrder_id());
     }
 }
