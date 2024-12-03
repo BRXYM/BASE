@@ -183,7 +183,7 @@ CREATE TABLE `ljf_user` (
   `ljf_user_name` varchar(255) DEFAULT NULL COMMENT '用户昵称',
   `ljf_user_ads_id` int DEFAULT NULL,
   PRIMARY KEY (`ljf_user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1002 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户表';
+) ENGINE=InnoDB AUTO_INCREMENT=1003 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -192,7 +192,7 @@ CREATE TABLE `ljf_user` (
 
 LOCK TABLES `ljf_user` WRITE;
 /*!40000 ALTER TABLE `ljf_user` DISABLE KEYS */;
-INSERT INTO `ljf_user` VALUES (1000,'123456789','123456','ljf',1000),(1001,'','','',0);
+INSERT INTO `ljf_user` VALUES (1000,'123456789','123456','ljf',1000),(1001,'','','',0),(1002,'123','123','test',1000);
 /*!40000 ALTER TABLE `ljf_user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -205,4 +205,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-11-30 23:23:00
+-- Dump completed on 2024-12-03 12:54:39
