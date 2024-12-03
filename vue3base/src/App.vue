@@ -2,17 +2,15 @@
   <div class="common-layout">
     <el-container>
       <el-header>
-        <!-- <RouterView name="header"></RouterView> -->
-        <Menu></Menu>
+        <RouterView name="app-header"></RouterView>
       </el-header>
       <el-main>
-        <RouterView name="main"></RouterView>
+        <RouterView name="app-main"></RouterView>
       </el-main>
     </el-container>
   </div>
 </template>
 
 <script setup lang="ts">
-import Menu from './components/Menu.vue';
-
+import { RouterView } from 'vue-router';
 </script>

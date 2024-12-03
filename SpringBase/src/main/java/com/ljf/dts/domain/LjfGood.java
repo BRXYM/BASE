@@ -33,6 +33,12 @@ public class LjfGood implements Serializable {
     private String good_name;
 
     /**
+     * 商品图片路径
+     */
+    @TableField(value = "ljf_good_filepath")
+    private String good_filepath;
+
+    /**
      * 商品数量
      */
     @TableField(value = "ljf_good_num")

@@ -11,7 +11,8 @@ export const useGoodStore = defineStore('good', () => {
   const fetchAllGoods = async () => {
     try {
       const response = await fetchGoods();
-      goods.value = response.data;
+      const {list} :any = response.data;
+      goods.value = list;
     } catch (error) {
       console.error('Error fetching goods:', error);
     }

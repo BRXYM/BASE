@@ -8,6 +8,7 @@ export interface Admin {
 
 export interface Ads {
   ads_id?: number;
+  ads_user_id: number;
   ads_txt: string;
 }
 
@@ -15,6 +16,7 @@ export interface Good {
   good_id?: number;
   good_sell_id: number;
   good_name: string;
+  good_filepath:string;
   good_num: number;
   good_txt: string;
 }

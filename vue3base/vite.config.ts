@@ -26,6 +26,7 @@ export default defineConfig({
     proxy:{
       '/api':{
         target:'http://localhost:3000',
+        // target:'https://cn-bj-plc-2.ofalias.net:54284',
         changeOrigin:true,
         rewrite:(path)=>path.replace(/^\/api/,'')
       }

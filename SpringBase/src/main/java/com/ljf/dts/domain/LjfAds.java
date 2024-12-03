@@ -20,6 +20,9 @@ public class LjfAds implements Serializable {
     @TableId(value = "ljf_ads_id", type = IdType.AUTO)
     private Integer ads_id;
 
+
+    @TableField(value = "ljf_ads_user_id")
+    private String ads_user_id;
     /**
      * 地址
      */

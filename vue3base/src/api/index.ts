@@ -4,6 +4,7 @@ import axios from 'axios';
 import type { Admin, Ads, Good, Mess, Order, Sell, User } from '@/types';
 
 const API_URL = 'http://localhost:3000';
+// const API_URL = 'https://cn-bj-plc-2.ofalias.net:54284';
 
 // Admin API
 export const fetchAdmins = () => axios.get<Admin[]>(`${API_URL}/admin`);

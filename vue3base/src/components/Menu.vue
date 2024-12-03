@@ -1,16 +1,15 @@
 <template>
   <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" :ellipsis="false"
            @select="handleSelect">
-
     <el-menu-item index="1">
-      克苏鲁跑团
+      校园大桶水配送系统
     </el-menu-item>
-    <el-menu-item index="0">查看模组</el-menu-item>
-    <el-menu-item index="4">上传模组</el-menu-item>
-    <el-menu-item index="5">查看评论</el-menu-item>
-    <el-menu-item index="6">留言信箱</el-menu-item>
-    <el-menu-item index="7">我的收藏</el-menu-item>
-    <el-menu-item index="8">历史留言</el-menu-item>
+    <el-menu-item index="0">查看商品</el-menu-item>
+    <el-menu-item index="4">已购订单</el-menu-item>
+    <el-menu-item index="5">我的地址</el-menu-item>
+<!--    <el-menu-item index="6"></el-menu-item>-->
+<!--    <el-menu-item index="7">我的收藏</el-menu-item>-->
+<!--    <el-menu-item index="8">历史留言</el-menu-item>-->
     <el-menu-item index="2" v-if="!isLogin" @click="drawer = true">登录</el-menu-item>
     <el-sub-menu index="3" v-if="isLogin">
       <template #title>{{ currentUser?.user_name }}</template>
@@ -60,7 +59,7 @@
 import { ref, watch, onBeforeMount } from 'vue'
 import { useUserStore } from '@/stores/userStore';
 import { storeToRefs } from 'pinia';
-import { ElMessageBox } from 'element-plus'
+import { ElMessageBox, ElNotification } from 'element-plus' // 引入 ElNotification
 
 const userStore = useUserStore()
 const { isLogin, currentUser } = storeToRefs(userStore)
@@ -68,7 +67,6 @@ const { fetchAllUsers, login, logout } = userStore
 
 const drawer = ref(false)
 const innerDrawer = ref(false)
-
 
 const userForm = ref({
   user_id: undefined as number | undefined,
@@ -104,14 +102,15 @@ const handleSelect = (key: string, keyPath: string[]) => {
 }
 
 const handleLogin = async () => {
-  const success = await login(userForm.value);
-  if (success) {
+  const {list}:any = await login(userForm.value);
+  if (list && list.length > 0) {
     drawer.value = false;
     clearUser();
   } else {
-    ElMessageBox.alert('登录失败，请检查用户名和密码', '错误', {
-      confirmButtonText: '确定',
-      type: 'error'
+    ElNotification({ // 使用 ElNotification 提示错误
+      title: 'Error',
+      message: '登录失败，请检查用户名和密码',
+      type: 'error',
     });
   }
 };
