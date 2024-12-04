@@ -23,16 +23,18 @@ export const fetchGoods = () => axios.get<Good[]>(`${API_URL}/good`);
 export const addGood = (good: Good) => axios.post(`${API_URL}/good/add`, good);
 export const deleteGood = (id: number) => axios.post(`${API_URL}/good/delete`, { id });
 export const updateGood = (good: Good) => axios.post(`${API_URL}/good/update`, good);
+export const fetchGoodsBySellId = (good : Good) => axios.post<Good>(`${API_URL}/good/getById`, good);
 
 // Mess API
 export const fetchMesses = () => axios.get<Mess[]>(`${API_URL}/mess`);
 export const addMess = (mess: Mess) => axios.post(`${API_URL}/mess/add`, mess);
-export const fetchMessesByOrderId = (orderId: number) => axios.post<Mess[]>(`${API_URL}/mess/byOrderId`, { orderId });
+export const fetchMessesByOrderId = (orderId: number|undefined) => axios.post<Mess[]>(`${API_URL}/mess/byOrderId`, { 'order_id':orderId });
 export const deleteMess = (id: number) => axios.post(`${API_URL}/mess/delete`, { id });
 export const updateMess = (mess: Mess) => axios.post(`${API_URL}/mess/update`, mess);
 
 // Order API
 export const fetchOrders = () => axios.get<Order[]>(`${API_URL}/order`);
+export const fetchOrdersByUserId = (order: Order) => axios.post<Order[]>(`${API_URL}/order/byUserId`, order);
 export const addOrder = (order: Order) => axios.post(`${API_URL}/order/add`, order);
 export const deleteOrder = (id: number) => axios.post(`${API_URL}/order/delete`, { id });
 export const updateOrder = (order: Order) => axios.post(`${API_URL}/order/update`, order);

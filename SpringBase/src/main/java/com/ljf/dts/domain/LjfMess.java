@@ -21,6 +21,12 @@ public class LjfMess implements Serializable {
     private Integer mess_id;
 
     /**
+     * 留言时间
+     */
+    @TableField(value = "ljf_mess_time")
+    private String mess_time;
+
+    /**
      * 留言内容
      */
     @TableField(value = "ljf_mess_txt")

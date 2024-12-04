@@ -44,6 +44,9 @@ export const useUserStore = defineStore('user', () => {
     try {
       const {data:{statusCode,code,list,message}}:any = await loginUser(userForm);
       currentUser.value = list;
+      if(statusCode!==200){
+        throw new Error(message);
+      }
       return true;
     } catch (error) {
       console.error('Error logging in:', error);

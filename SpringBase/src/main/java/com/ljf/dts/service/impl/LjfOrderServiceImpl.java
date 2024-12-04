@@ -6,6 +6,7 @@ import com.ljf.dts.domain.LjfOrder;
 import com.ljf.dts.service.LjfOrderService;
 import com.ljf.dts.mapper.LjfOrderMapper;
 import com.ljf.dts.utils.Result;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +14,8 @@ import java.util.List;
 @Service
 public class LjfOrderServiceImpl extends ServiceImpl<LjfOrderMapper, LjfOrder>
     implements LjfOrderService {
-
+    @Autowired
+    private LjfOrderMapper ljfOrderMapper;
     @Override
     public Result getAllOrders() {
         List<LjfOrder> orders = list();
@@ -52,7 +54,7 @@ public class LjfOrderServiceImpl extends ServiceImpl<LjfOrderMapper, LjfOrder>
 
     @Override
     public Result getOrderById(Integer id) {
-        LjfOrder order = getById(id);
+        List<LjfOrder> order = ljfOrderMapper.selectByUserId(id);
         if (order != null) {
             return new Result(200, "查询成功", order, "查询成功");
         } else {

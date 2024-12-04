@@ -36,6 +36,7 @@ public class LjfMessController {
 
     @PostMapping("/byOrderId")
     public Result getMessageByOrderId(@RequestBody LjfMess message) {
+        System.out.println(message);
         return ljfMessService.getMessageByOrderId(message.getOrder_id());
     }
 }

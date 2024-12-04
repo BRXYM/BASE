@@ -1,12 +1,12 @@
 <template>
   <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" :ellipsis="false"
            @select="handleSelect">
-    <el-menu-item index="1">
+    <el-menu-item index="1" @click="goHome">
       校园大桶水配送系统
     </el-menu-item>
-    <el-menu-item index="0">查看商品</el-menu-item>
-    <el-menu-item index="4">已购订单</el-menu-item>
-    <el-menu-item index="5">我的地址</el-menu-item>
+    <el-menu-item index="0" @click="navigateToGoodList">查看商品</el-menu-item>
+    <el-menu-item index="4" @click="navigateToOrderList">已购订单</el-menu-item>
+    <el-menu-item index="5" @click="navigateToAdressList">我的地址</el-menu-item>
 <!--    <el-menu-item index="6"></el-menu-item>-->
 <!--    <el-menu-item index="7">我的收藏</el-menu-item>-->
 <!--    <el-menu-item index="8">历史留言</el-menu-item>-->
@@ -57,13 +57,16 @@
 
 <script lang="ts" setup>
 import { ref, watch, onBeforeMount } from 'vue'
+import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
 import { storeToRefs } from 'pinia';
-import { ElMessageBox, ElNotification } from 'element-plus' // 引入 ElNotification
+import { ElMessageBox, ElNotification } from 'element-plus';
 
-const userStore = useUserStore()
-const { isLogin, currentUser } = storeToRefs(userStore)
-const { fetchAllUsers, login, logout } = userStore
+const router = useRouter(); // 使用 Vue Router 的 useRouter 钩子
+
+const userStore = useUserStore();
+const { isLogin, currentUser } = storeToRefs(userStore);
+const { fetchAllUsers, login, logout } = userStore;
 
 const drawer = ref(false)
 const innerDrawer = ref(false)
@@ -102,13 +105,19 @@ const handleSelect = (key: string, keyPath: string[]) => {
 }
 
 const handleLogin = async () => {
-  const {list}:any = await login(userForm.value);
-  if (list && list.length > 0) {
+  const a:boolean = await login(userForm.value);
+  console.log(a);
+  if (a) {
     drawer.value = false;
     clearUser();
+    ElNotification({ // 使用 ElNotification 提示成功
+      // title: 'Success',
+      message: '登录成功',
+      type: 'success',
+    });
   } else {
     ElNotification({ // 使用 ElNotification 提示错误
-      title: 'Error',
+      // title: 'Error',
       message: '登录失败，请检查用户名和密码',
       type: 'error',
     });
@@ -119,6 +128,37 @@ const register = () => {
   // 实现注册逻辑
   innerDrawer.value = false;
   clearUser();
+}
+function isnotLogin(){
+  if (!isLogin.value) {
+    ElNotification({ // 使用 ElNotification 提示错误
+      // title: 'Error',
+      message: '请登录后再操作',
+      type: 'error',
+    });
+    router.push('/')
+    drawer.value = true;
+  }
+}
+
+function navigateToGoodList(){
+  router.push('/goods')
+  isnotLogin()
+}
+
+function goHome(){
+  router.push('/')
+  isnotLogin()
+}
+
+function navigateToOrderList(){
+  router.push('/order')
+  isnotLogin()
+} 
+
+function navigateToAdressList(){
+  router.push('/address')
+  isnotLogin()
 }
 </script>
 

@@ -2,7 +2,7 @@
 
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { fetchOrders, addOrder, deleteOrder, updateOrder } from '@/api/index';
+import { fetchOrders, addOrder, deleteOrder, updateOrder,fetchOrdersByUserId } from '@/api/index';
 import type { Order } from '@/types';
 
 export const useOrderStore = defineStore('order', () => {
@@ -12,6 +12,16 @@ export const useOrderStore = defineStore('order', () => {
     try {
       const response = await fetchOrders();
       orders.value = response.data;
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    }
+  };
+
+  const fetchIdOrders = async (order: Order) => {
+    try {
+      const response = await fetchOrdersByUserId(order);
+      const {list} :any = response.data;
+      orders.value = list;
     } catch (error) {
       console.error('Error fetching orders:', error);
     }
@@ -50,6 +60,7 @@ export const useOrderStore = defineStore('order', () => {
   return {
     orders,
     fetchAllOrders,
+    fetchIdOrders,
     addNewOrder,
     removeOrder,
     updateExistingOrder,

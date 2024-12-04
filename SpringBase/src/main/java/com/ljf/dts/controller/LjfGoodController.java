@@ -34,4 +34,9 @@ public class LjfGoodController {
     public Result deleteGood(@RequestBody LjfGood good) {
         return ljfGoodService.deleteGood(good.getGood_id());
     }
+
+    @PostMapping("/getById")
+    public Result getGoodById(@RequestBody LjfGood good) {
+        return ljfGoodService.getGoodById(good.getGood_id());
+    }
 }

@@ -34,4 +34,8 @@ public class LjfOrderController {
     public Result deleteOrder(@RequestBody LjfOrder order) {
         return ljfOrderService.deleteOrder(order.getOrder_id());
     }
+    @PostMapping("/byUserId")
+    public Result getOrderById(@RequestBody LjfOrder order) {
+        return ljfOrderService.getOrderById(order.getOrder_user_id());
+    }
 }

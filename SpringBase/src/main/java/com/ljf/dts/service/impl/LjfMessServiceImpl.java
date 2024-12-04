@@ -6,6 +6,7 @@ import com.ljf.dts.domain.LjfMess;
 import com.ljf.dts.service.LjfMessService;
 import com.ljf.dts.mapper.LjfMessMapper;
 import com.ljf.dts.utils.Result;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +14,9 @@ import java.util.List;
 @Service
 public class LjfMessServiceImpl extends ServiceImpl<LjfMessMapper, LjfMess>
     implements LjfMessService {
+
+    @Autowired
+    private LjfMessMapper messMapper;
 
     @Override
     public Result getAllMessages() {
@@ -52,9 +56,9 @@ public class LjfMessServiceImpl extends ServiceImpl<LjfMessMapper, LjfMess>
 
     @Override
     public Result getMessageByOrderId(Integer orderid) {
-        LjfMess message = getById(orderid);
-        if (message != null) {
-            return new Result(200, "查询成功", message, "查询成功");
+        List<LjfMess> list = messMapper.getByOrderId(orderid);
+        if (list != null) {
+            return new Result(200, "查询成功", list, "查询成功");
         } else {
             return new Result(400, "查询失败", null, "留言不存在");
         }

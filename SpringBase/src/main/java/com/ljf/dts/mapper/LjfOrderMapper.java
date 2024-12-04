@@ -1,7 +1,10 @@
 package com.ljf.dts.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ljf.dts.domain.LjfOrder;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
 * @author 26371
@@ -11,6 +14,11 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 */
 public interface LjfOrderMapper extends BaseMapper<LjfOrder> {
 
+    default List<LjfOrder> selectByUserId(Integer userId) {
+        QueryWrapper<LjfOrder> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("ljf_order_user_id", userId);
+        return selectList(queryWrapper);
+    }
 }
 
 

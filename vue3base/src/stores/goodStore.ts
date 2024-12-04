@@ -2,7 +2,7 @@
 
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { fetchGoods, addGood, deleteGood, updateGood } from '@/api/index';
+import { fetchGoods, addGood, deleteGood, updateGood,fetchGoodsBySellId } from '@/api/index';
 import type { Good } from '@/types';
 
 export const useGoodStore = defineStore('good', () => {
@@ -13,6 +13,16 @@ export const useGoodStore = defineStore('good', () => {
       const response = await fetchGoods();
       const {list} :any = response.data;
       goods.value = list;
+    } catch (error) {
+      console.error('Error fetching goods:', error);
+    }
+  };
+
+  const fetchIdGoods = async (good: Good) => {
+    try {
+      const response = await fetchGoodsBySellId(good);
+      const {list} :any = response.data;
+      return list
     } catch (error) {
       console.error('Error fetching goods:', error);
     }
@@ -51,6 +61,7 @@ export const useGoodStore = defineStore('good', () => {
   return {
     goods,
     fetchAllGoods,
+    fetchIdGoods,
     addNewGood,
     removeGood,
     updateExistingGood,

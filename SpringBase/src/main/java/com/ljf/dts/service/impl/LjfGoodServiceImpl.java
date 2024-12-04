@@ -3,9 +3,11 @@ package com.ljf.dts.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ljf.dts.domain.LjfGood;
+import com.ljf.dts.mapper.LjfOrderMapper;
 import com.ljf.dts.service.LjfGoodService;
 import com.ljf.dts.mapper.LjfGoodMapper;
 import com.ljf.dts.utils.Result;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +15,8 @@ import java.util.List;
 @Service
 public class LjfGoodServiceImpl extends ServiceImpl<LjfGoodMapper, LjfGood>
     implements LjfGoodService {
-
+    @Autowired
+    private LjfGoodMapper ljfgoodMapper;
     @Override
     public Result getAllGoods() {
         List<LjfGood> goodsList = list();
@@ -52,7 +55,7 @@ public class LjfGoodServiceImpl extends ServiceImpl<LjfGoodMapper, LjfGood>
 
     @Override
     public Result getGoodById(Integer id) {
-        LjfGood good = getById(id);
+        LjfGood good = ljfgoodMapper.getByGoodId(id);
         if (good != null) {
             return new Result(200, "查询成功", good, "查询成功");
         } else {
