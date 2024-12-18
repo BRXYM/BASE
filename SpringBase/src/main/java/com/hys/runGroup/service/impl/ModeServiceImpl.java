@@ -32,9 +32,11 @@ public class ModeServiceImpl implements ModeService {
     public Result getAllModes() {
         List<Mode>  list = modeMapper.selectList(null);
         if (list != null && !list.isEmpty()) {
-            return new Result(200, "001", list, "获取成功");
+            return Result.success(list,"获取成功");
+//            return new Result(200, "001", list, "获取成功");
         }else {
-            return new Result(200, "002", list, "列表为空");
+            return Result.fail("列表为空");
+//            return new Result(200, "002", list, "列表为空");
         }
     }
 
