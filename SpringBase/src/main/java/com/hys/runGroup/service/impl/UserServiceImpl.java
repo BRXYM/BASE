@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-
 /**
  * 用户表实现
  */
@@ -19,79 +18,89 @@ public class UserServiceImpl implements UserService {
     @Resource
     private UserMapper userMapper;
 
+    /**
+     * 获取所有用户
+     * @return Result<List<User>> - 包含所有用户信息的Result对象
+     */
     @Override
     public Result getAllUsers() {
         List<User> list = userMapper.selectList(null);
         if (list != null && !list.isEmpty()) {
-            return Result.success(list,"获取成功");
-//            return new Result(200, "001", list, "获取成功");
+            return Result.success(list, "获取成功");
         } else {
             return Result.fail("列表为空");
-//            return new Result(200, "002", list, "列表为空");
         }
     }
 
+    /**
+     * 增加用户
+     * @param user - 用户对象
+     * @return Result<User> - 添加用户的结果，包含添加后的用户对象
+     */
     @Override
     public Result addUser(User user) {
         int i = userMapper.insert(user);
         if (i > 0) {
-            return Result.success(userMapper.selectById(user.getUid()),"添加成功");
-//            return new Result(200, "001", userMapper.selectById(user.getUid()), "添加成功");
-        }else {
+            return Result.success(userMapper.selectById(user.getUid()), "添加成功");
+        } else {
             return Result.fail("添加失败");
-//            return new Result(200, "002", user, "添加失败");
         }
     }
 
+    /**
+     * 删除用户
+     * @param uid - 用户ID
+     * @return Result<Integer> - 删除用户的结果，包含删除的记录数
+     */
     @Override
-    public Result deleteUser(User user) {
-        User newUser = userMapper.selectById(user.getUid());
+    public Result deleteUser(int uid) {
+        User newUser = userMapper.selectById(uid);
         if (newUser == null) {
             return Result.fail("对象不存在");
-//            return new Result(200,"003",user,"对象不存在");
         }
-        Integer i = userMapper.deleteById(user.getUid());
+        Integer i = userMapper.deleteById(uid);
         if (i > 0) {
-            return Result.success(i,"删除成功");
-//            return new Result(200,"001",i,"删除成功");
-        }else {
+            return Result.success(i, "删除成功");
+        } else {
             return Result.fail("删除失败");
-//            return new Result(200,"002",i,"删除失败");
         }
     }
 
+    /**
+     * 修改用户
+     * @param user - 用户对象
+     * @return Result<User> - 更新用户的结果，包含更新后的用户对象
+     */
     @Override
     public Result updateUser(User user) {
         User updateUser = userMapper.selectById(user.getUid());
         if (updateUser == null) {
             return Result.fail("对象不存在");
-//            return new Result(200,"003",user,"对象不存在");
         }
-        try{
-            userMapper.updateById(user);
-        }catch (Exception ignored) {}
-        if (userMapper != null) {
-            return Result.success(userMapper.selectById(user.getUid()),"修改成功");
-//            return new Result(200,"001",user,"修改成功");
+        int i = userMapper.updateById(user);
+        if (i > 0) {
+            return Result.success(userMapper.selectById(user.getUid()), "修改成功");
         } else {
             return Result.fail("修改失败");
-//            return new Result(200,"002",user,"修改失败");
         }
     }
 
+    /**
+     * 用户登录
+     * @param user - 包含用户ID和密码的用户对象
+     * @return Result<User> - 登录结果，包含用户对象
+     */
     @Override
     public Result loginUser(User user) {
         User login = userMapper.selectById(user.getUid());
         if (login == null) {
             return Result.fail("用户id错误");
-//            return new Result(200,"003",user,"用户id错误");
         }
+        // 优化: 避免两次查询数据库
         if (login.getUpass().equals(user.getUpass())) {
-            return Result.success(login,"登陆成功");
-//            return new Result(200,"001",login,"登陆成功");
+            return Result.success(login, "登陆成功");
         } else {
             return Result.fail("密码错误");
-//            return new Result(200,"002",user,"密码错误");
         }
     }
 }

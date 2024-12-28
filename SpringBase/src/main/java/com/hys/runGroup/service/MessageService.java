@@ -16,9 +16,9 @@ public interface MessageService {
 //    获取所有留言
     Result getAllMessages();
 //    获取当前用户历史留言
-    Result getMessagesByUid(Message message);
+    Result getMessagesByUid(Integer uid);
 //    获取当前用户新留言
-    Result getMessagesByToUid(Message message);
+    Result getMessagesByToUid(Integer toid);
 //    更新留言
     Result updateMessage(Message message);
 }

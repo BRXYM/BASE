@@ -1,12 +1,10 @@
 package com.hys.runGroup.controller;
 
+import com.hys.runGroup.domain.Mode;
 import com.hys.runGroup.service.ModeService;
 import com.hys.runGroup.utils.Result;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 模组控制类
@@ -20,8 +18,95 @@ public class ModeController {
     @Resource
     private ModeService modeService;
 
+    /**
+     * 获取所有模组
+     * 请求方式: GET
+     * 请求路径: /mode/getAllModes
+     * 请求参数: 无
+     * 返回结果: Result<List<Mode>>
+     */
     @GetMapping("/getAllModes")
     public Result getAllModes(){
         return modeService.getAllModes();
+    }
+
+    /**
+     * 增加模组
+     * 请求方式: POST
+     * 请求路径: /mode/addMode
+     * 请求参数:
+     *   @RequestBody Mode mode - 模组对象
+     * 返回结果: Result<Void>
+     */
+    @PostMapping("/addMode")
+    public Result addMode(@RequestBody Mode mode) {
+        return modeService.addMode(mode);
+    }
+
+    /**
+     * 删除模组
+     * 请求方式: DELETE
+     * 请求路径: /mode/deleteMode/{MOid}
+     * 请求参数:
+     *   @PathVariable int MOid - 模组ID
+     * 返回结果: Result<Void>
+     */
+    @DeleteMapping("/deleteMode/{MOid}")
+    public Result deleteMode(@PathVariable int MOid) {
+        Mode mode = new Mode();
+        mode.setMOid(MOid);
+        return modeService.deleteMode(mode);
+    }
+
+    /**
+     * 修改模组
+     * 请求方式: PUT
+     * 请求路径: /mode/updateMode
+     * 请求参数:
+     *   @RequestBody Mode mode - 模组对象
+     * 返回结果: Result<Void>
+     */
+    @PutMapping("/updateMode")
+    public Result updateMode(@RequestBody Mode mode) {
+        return modeService.updateMode(mode);
+    }
+
+    /**
+     * 根据上传者id获取模组
+     * 请求方式: GET
+     * 请求路径: /mode/getModesByUid/{Uid}
+     * 请求参数:
+     *   @PathVariable int Uid - 用户ID
+     * 返回结果: Result<List<Mode>>
+     */
+    @GetMapping("/getModesByUid/{Uid}")
+    public Result getModesByUid(@PathVariable int Uid) {
+        return modeService.getModesByUid(Uid);
+    }
+
+    /**
+     * 根据模组id获取模组，并更新收藏数
+     * 请求方式: GET
+     * 请求路径: /mode/getModeByIdAndUpdateSum/{MOid}
+     * 请求参数:
+     *   @PathVariable int MOid - 模组ID
+     * 返回结果: Result<Mode>
+     */
+    @GetMapping("/getModeByIdAndUpdateSum/{MOid}")
+    public Result getModeByIdAndUpdateSum(@PathVariable int MOid) {
+        return modeService.getModeByIdAndUpdateSum(MOid);
+    }
+
+    /**
+     * 根据类id获取模组
+     * 请求方式: GET
+     * 请求路径: /mode/getModesByTid/{Tid}
+     * 请求参数:
+     *   @PathVariable int Tid - 类别ID
+     * 返回结果: Result<List<Mode>>
+     */
+    @GetMapping("/getModesByTid/{Tid}")
+    public Result getModesByTid(@PathVariable int Tid) {
+        return modeService.getModesByTid(Tid);
     }
 }

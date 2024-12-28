@@ -14,8 +14,9 @@ public interface UserService {
 //    添加用户
     Result addUser(User user);
 //    删除用户
-    Result deleteUser(User user);
-//    修改用户
+    Result deleteUser(int uid);
+
+    // 修改用户
     Result updateUser(User user);
 //    登录
     Result loginUser(User user);

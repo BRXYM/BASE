@@ -1,6 +1,5 @@
 package com.hys.runGroup.controller;
 
-
 import com.hys.runGroup.domain.User;
 import com.hys.runGroup.service.UserService;
 import com.hys.runGroup.utils.Result;
@@ -23,26 +22,65 @@ public class UserController {
     @Resource
     private UserService userService;
 
+    /**
+     * 获取所有用户
+     * 请求方式: GET
+     * 请求路径: /user/getAllUsers
+     * 请求参数: 无
+     * 返回结果: Result<List<User>>
+     */
     @GetMapping("/getAllUsers")
     public Result getAllUsers() {
         return userService.getAllUsers();
     }
 
+    /**
+     * 增加用户
+     * 请求方式: POST
+     * 请求路径: /user/addUser
+     * 请求参数:
+     *   @RequestBody User user - 用户对象
+     * 返回结果: Result<Void>
+     */
     @PostMapping("/addUser")
     public Result addUser(@RequestBody User user) {
         return userService.addUser(user);
     }
 
+    /**
+     * 删除用户
+     * 请求方式: POST
+     * 请求路径: /user/deleteUser
+     * 请求参数:
+     *   @RequestParam int uid - 用户ID
+     * 返回结果: Result<Void>
+     */
     @PostMapping("/deleteUser")
-    public Result deleteUser(@RequestBody User user) {
-        return userService.deleteUser(user);
+    public Result deleteUser(@RequestParam int uid) {
+        return userService.deleteUser(uid);
     }
 
+    /**
+     * 修改用户
+     * 请求方式: POST
+     * 请求路径: /user/updateUser
+     * 请求参数:
+     *   @RequestBody User user - 用户对象
+     * 返回结果: Result<Void>
+     */
     @PostMapping("/updateUser")
     public Result updateUser(@RequestBody User user) {
         return userService.updateUser(user);
     }
 
+    /**
+     * 用户登录
+     * 请求方式: POST
+     * 请求路径: /user/login
+     * 请求参数:
+     *   @RequestBody User user - 用户对象 (包含用户名和密码)
+     * 返回结果: Result<User>
+     */
     @PostMapping("/login")
     public Result login(@RequestBody User user) {
 //        System.out.println(user);

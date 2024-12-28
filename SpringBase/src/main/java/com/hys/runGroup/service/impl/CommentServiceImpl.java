@@ -17,46 +17,68 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     @Autowired
     private CommentMapper commentMapper;
 
+    /**
+     * 获取所有评论
+     * @return Result<List<Comment>> - 包含所有评论的Result对象
+     */
     @Override
     public Result getAllComments() {
         List<Comment> comments = commentMapper.selectList(null);
-        return Result.success(comments,"获取成功");
+        return Result.success(comments, "获取成功");
     }
 
+    /**
+     * 根据模组ID获取评论
+     * @param id - 模组ID
+     * @return Result<List<Comment>> - 包含指定模组ID的评论列表的Result对象
+     */
     @Override
     public Result getCommentsByMid(Integer id) {
-//        QueryWrapper<Comment> queryWrapper = new QueryWrapper<>();
-//        queryWrapper.eq("MOid", id);
         List<Comment> comments = commentMapper.selectByMOid(id);
         System.out.println(comments);
-        return Result.success(comments,"获取成功");
+        return Result.success(comments, "获取成功");
     }
 
+    /**
+     * 添加评论
+     * @param comment - 评论对象
+     * @return Result - 添加评论的结果
+     */
     @Override
     public Result addComment(Comment comment) {
         boolean save = commentMapper.insert(comment) > 0;
         if (save) {
-            return Result.success();
+            return Result.success("添加评论成功");
         } else {
             return Result.fail("添加评论失败");
         }
     }
 
+    /**
+     * 删除评论
+     * @param comment - 包含CID的评论对象
+     * @return Result - 删除评论的结果
+     */
     @Override
     public Result deleteComment(Comment comment) {
         boolean remove = commentMapper.deleteById(comment.getCid()) > 0;
         if (remove) {
-            return Result.success();
+            return Result.success("删除评论成功");
         } else {
             return Result.fail("删除评论失败");
         }
     }
 
+    /**
+     * 更新评论
+     * @param comment - 评论对象
+     * @return Result - 更新评论的结果
+     */
     @Override
     public Result updateComment(Comment comment) {
         boolean update = commentMapper.updateById(comment) > 0;
         if (update) {
-            return Result.success();
+            return Result.success("更新评论成功");
         } else {
             return Result.fail("更新评论失败");
         }

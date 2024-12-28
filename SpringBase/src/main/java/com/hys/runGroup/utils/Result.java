@@ -1,37 +1,29 @@
 package com.hys.runGroup.utils;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-public class Result<T> {
-    private int code;
+@AllArgsConstructor
+public class Result {
+    private Integer statusCode;
+    private String code;
+    private Object list;
     private String message;
-    private T data;
 
-    // 成功时调用
-    public static <T> Result<T> success(T data,String message) {
-        Result<T> result = new Result<>();
-        result.setCode(200);
-        result.setMessage(message);
-        result.setData(data);
-        return result;
+    public Result(int statusCode, String code, String message) {
+        this(statusCode, code, null, message);
     }
 
-    // 成功时调用，传递信息
-    public static <T> Result<T> success(String message) {
-        return success(null, message);
-    }
-    // 成功时调用，不带参数
-    public static <T> Result<T> success() {
-        return success(null, "");
+    public static Result success(Object list, String message) {
+        return new Result(200, "SUCCESS", list, message);
     }
 
-    // 失败时调用
-    public static <T> Result<T> fail(String message) {
-        Result<T> result = new Result<>();
-        result.setCode(500);
-        result.setMessage(message);
-        result.setData(null);
-        return result;
+    public static Result success(String message) {
+        return new Result(200, "SUCCESS", null, message);
+    }
+
+    public static Result fail(String message) {
+        return new Result(500, "FAILURE", null, message);
     }
 }

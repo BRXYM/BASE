@@ -1,6 +1,5 @@
 package com.hys.runGroup.domain;
 
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -20,13 +19,17 @@ public class Message {
 
     @TableId(value = "hysMEid", type = IdType.AUTO)
     private int MEid;
-    @TableField("hysMEidU")
-    private int Uid;
-    @TableField("hysMEtoid")
-    private int Utoid;
+
     @TableField("hysMEtxt")
     private String txt;
+
     @TableField("hysMEtime")
     private String time;
+
+    @TableField("hysMEtoid")
+    private int Utoid;
+
+    @TableField("hysMEidU")
+    private int Uid;
 
 }

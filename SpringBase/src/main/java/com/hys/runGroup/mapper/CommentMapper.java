@@ -1,5 +1,6 @@
 package com.hys.runGroup.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.hys.runGroup.domain.Comment;
 import org.apache.ibatis.annotations.Mapper;
@@ -14,6 +15,10 @@ import java.util.List;
 @Mapper
 public interface CommentMapper extends BaseMapper<Comment> {
 
-    @Select("SELECT * FROM hysc WHERE hysCidMO = #{MOid}")
-    List<Comment> selectByMOid(@Param("MOid") int MOid);
+    default List<Comment> selectByMOid(Integer id) {
+        QueryWrapper<Comment> queryWapper = new QueryWrapper<Comment>();
+        queryWapper.eq("hysCidMO", id);
+        return selectList(queryWapper);
+    }
+
 }
