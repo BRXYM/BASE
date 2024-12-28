@@ -27,6 +27,7 @@ public class StowController {
      */
     @GetMapping("/getAllStows")
     public Result getAllStows() {
+        System.out.println("收到获取所有收藏信息的请求");
         return stowService.getAllStows();
     }
 
@@ -40,6 +41,7 @@ public class StowController {
      */
     @GetMapping("/getStowById/{id}")
     public Result getStowById(@PathVariable int id) {
+        System.out.println("收到根据ID获取收藏的请求，收藏ID: " + id);
         return stowService.getStowById(id);
     }
 
@@ -53,6 +55,7 @@ public class StowController {
      */
     @GetMapping("/getStowsByUid/{Uid}")
     public Result getStowsByUid(@PathVariable int Uid) {
+        System.out.println("收到根据用户ID获取收藏信息的请求，用户ID: " + Uid);
         return stowService.getStowsByUid(Uid);
     }
 
@@ -66,6 +69,7 @@ public class StowController {
      */
     @PostMapping("/addStow")
     public Result addStow(@RequestBody Stow stow) {
+        System.out.println("收到添加收藏的请求，收藏对象: " + stow);
         return stowService.addStow(stow);
     }
 
@@ -79,6 +83,7 @@ public class StowController {
      */
     @DeleteMapping("/deleteStow/{id}")
     public Result deleteStow(@PathVariable int id) {
+        System.out.println("收到删除收藏的请求，收藏ID: " + id);
         Stow stow = new Stow();
         stow.setSid(id);
         return stowService.deleteStow(stow);
@@ -94,6 +99,7 @@ public class StowController {
      */
     @PutMapping("/updateStow")
     public Result updateStow(@RequestBody Stow stow) {
+        System.out.println("收到更新收藏的请求，收藏对象: " + stow);
         return stowService.updateStow(stow);
     }
 }

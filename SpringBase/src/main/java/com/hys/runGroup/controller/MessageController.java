@@ -3,6 +3,7 @@ package com.hys.runGroup.controller;
 import com.hys.runGroup.domain.Message;
 import com.hys.runGroup.service.MessageService;
 import com.hys.runGroup.utils.Result;
+import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/message")
 public class MessageController {
 
-    @Autowired
+    @Resource
     private MessageService messageService;
 
     /**
@@ -28,6 +29,7 @@ public class MessageController {
      */
     @GetMapping("/byUid")
     public Result getMessagesByUid(@RequestParam int uid) {
+        System.out.println("收到根据用户ID获取留言信息的请求，用户ID: " + uid);
         return messageService.getMessagesByUid(uid);
     }
 
@@ -41,6 +43,7 @@ public class MessageController {
      */
     @GetMapping("/byToUid")
     public Result getMessagesByToUid(@RequestParam int utoid) {
+        System.out.println("收到根据被评论用户ID获取评论信息的请求，被评论用户ID: " + utoid);
         return messageService.getMessagesByToUid(utoid);
     }
 
@@ -54,6 +57,7 @@ public class MessageController {
      */
     @PostMapping("/add")
     public Result addMessage(@RequestBody Message message) {
+        System.out.println("收到添加留言信息的请求，留言对象: " + message);
         return messageService.addMessage(message);
     }
 
@@ -67,6 +71,7 @@ public class MessageController {
      */
     @PostMapping("/delete")
     public Result deleteMessage(@RequestParam int MEid) {
+        System.out.println("收到删除留言信息的请求，留言ID: " + MEid);
         Message message = new Message();
         message.setMEid(MEid);
         return messageService.deleteMessage(message);
@@ -81,6 +86,7 @@ public class MessageController {
      */
     @GetMapping("/all")
     public Result getAllMessages() {
+        System.out.println("收到获取所有留言的请求");
         return messageService.getAllMessages();
     }
 
@@ -94,6 +100,7 @@ public class MessageController {
      */
     @PostMapping("/update")
     public Result updateMessage(@RequestBody Message message) {
+        System.out.println("收到更新留言信息的请求，留言对象: " + message);
         return messageService.updateMessage(message);
     }
 }

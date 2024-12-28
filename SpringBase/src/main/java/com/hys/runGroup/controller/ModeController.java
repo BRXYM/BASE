@@ -27,6 +27,7 @@ public class ModeController {
      */
     @GetMapping("/getAllModes")
     public Result getAllModes(){
+        System.out.println("收到获取所有模组的请求");
         return modeService.getAllModes();
     }
 
@@ -40,6 +41,7 @@ public class ModeController {
      */
     @PostMapping("/addMode")
     public Result addMode(@RequestBody Mode mode) {
+        System.out.println("收到增加模组的请求，模组对象: " + mode);
         return modeService.addMode(mode);
     }
 
@@ -53,6 +55,7 @@ public class ModeController {
      */
     @DeleteMapping("/deleteMode/{MOid}")
     public Result deleteMode(@PathVariable int MOid) {
+        System.out.println("收到删除模组的请求，模组ID: " + MOid);
         Mode mode = new Mode();
         mode.setMOid(MOid);
         return modeService.deleteMode(mode);
@@ -68,6 +71,7 @@ public class ModeController {
      */
     @PutMapping("/updateMode")
     public Result updateMode(@RequestBody Mode mode) {
+        System.out.println("收到修改模组的请求，模组对象: " + mode);
         return modeService.updateMode(mode);
     }
 
@@ -81,6 +85,7 @@ public class ModeController {
      */
     @GetMapping("/getModesByUid/{Uid}")
     public Result getModesByUid(@PathVariable int Uid) {
+        System.out.println("收到根据上传者ID获取模组的请求，用户ID: " + Uid);
         return modeService.getModesByUid(Uid);
     }
 
@@ -94,6 +99,7 @@ public class ModeController {
      */
     @GetMapping("/getModeByIdAndUpdateSum/{MOid}")
     public Result getModeByIdAndUpdateSum(@PathVariable int MOid) {
+        System.out.println("收到根据模组ID获取模组并更新收藏数的请求，模组ID: " + MOid);
         return modeService.getModeByIdAndUpdateSum(MOid);
     }
 
@@ -107,6 +113,7 @@ public class ModeController {
      */
     @GetMapping("/getModesByTid/{Tid}")
     public Result getModesByTid(@PathVariable int Tid) {
+        System.out.println("收到根据类ID获取模组的请求，类别ID: " + Tid);
         return modeService.getModesByTid(Tid);
     }
 }

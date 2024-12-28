@@ -41,7 +41,7 @@ public class CommentController {
      */
     @PostMapping("/getCommentsByMid")
     public Result getCommentsByMid(@RequestBody Comment comment) {
-        System.out.println(comment);
+        System.out.println("收到获取所有评论的请求");
         return commentService.getCommentsByMid(comment.getMOid());
     }
 
@@ -55,6 +55,7 @@ public class CommentController {
      */
     @PostMapping("/addComment")
     public Result addComment(@RequestBody Comment comment) {
+        System.out.println("收到根据模组ID获取评论的请求，评论对象: " + comment);
         return commentService.addComment(comment);
     }
 
@@ -68,6 +69,7 @@ public class CommentController {
      */
     @PostMapping("/deleteComment")
     public Result deleteComment(@RequestBody Comment comment) {
+        System.out.println("收到添加评论的请求，评论对象: " + comment);
         return commentService.deleteComment(comment);
     }
 
@@ -81,6 +83,7 @@ public class CommentController {
      */
     @PostMapping("/updateComment")
     public Result updateComment(@RequestBody Comment comment) {
+        System.out.println("收到更新评论的请求，评论对象: " + comment);
         return commentService.updateComment(comment);
     }
 }

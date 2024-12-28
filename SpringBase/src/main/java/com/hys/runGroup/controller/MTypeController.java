@@ -26,6 +26,7 @@ public class MTypeController {
      */
     @GetMapping("/getAllMTypes")
     public Result getAllMTypes() {
+        System.out.println("收到获取所有分类信息的请求");
         return mTypeService.getAllMTypes();
     }
 
@@ -39,6 +40,7 @@ public class MTypeController {
      */
     @GetMapping("/getMTypeById/{id}")
     public Result getMTypeById(@PathVariable int id) {
+        System.out.println("收到根据ID获取分类名的请求，分类ID: " + id);
         return mTypeService.getMTypeById(id);
     }
 }

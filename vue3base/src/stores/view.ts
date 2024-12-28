@@ -1,9 +1,0 @@
-import { ref, computed, watch } from 'vue'
-import { defineStore } from 'pinia'
-
-export const useViewStore = defineStore('view', () => {
-  const islogin = ref(false)
-
-
-  return { islogin }
-})

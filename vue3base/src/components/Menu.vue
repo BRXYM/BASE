@@ -11,54 +11,71 @@
         <el-menu-item index="6">留言信箱</el-menu-item>
         <el-menu-item index="7">我的收藏</el-menu-item>
         <el-menu-item index="8">历史留言</el-menu-item>
-        <el-menu-item index="2" v-if="!islogin" @click="drawer = true">登录</el-menu-item>
-        <el-sub-menu index="3" v-if="islogin">
-            <template #title>{{ user.uname }}</template>
+        <el-menu-item index="2" v-if="islogin === 0" @click="islogin = 2">登录</el-menu-item>
+        <el-sub-menu index="3" v-if="islogin === 1">
+            <template #title>{{ currentUser?.Uname || '未登录'}}</template>
             <el-menu-item index="3-1">个人中心</el-menu-item>
             <el-menu-item index="3-2" @click="logout">退出登录</el-menu-item>
         </el-sub-menu>
     </el-menu>
-    <el-drawer v-model="drawer" title="用户登录" size="40%">
+    <el-drawer 
+    v-model="drawer" 
+    title="用户登录" 
+    size="40%" 
+    :close-on-click-modal="false" 
+    :close-on-press-escape="false" 
+    :show-close="false"
+    >
         <!-- 登录表单 -->
         <el-form style="max-width: 100%" :model="userForm" status-icon label-width="auto">
-            <el-form-item label="用户ID" prop="userid">
-                <el-input v-model="userForm.uid" autocomplete="off" />
+            <el-form-item label="手机号" prop="userphone">
+                <el-input v-model="userForm.Uphone" autocomplete="off" />
             </el-form-item>
             <el-form-item label="密码" prop="password">
-                <el-input v-model="userForm.upass" type="password" autocomplete="off" />
+                <el-input v-model="userForm.Upass" type="password" autocomplete="off" />
             </el-form-item>
             <el-form-item>
                 <el-button type="primary" @click="login(userForm)">
                     登录
                 </el-button>
                 <el-button @click="clearUser()">清除</el-button>
+                <el-button @click="islogin = 0">关闭登录页面</el-button>
             </el-form-item>
         </el-form>
         <div>
-            <el-button @click="innerDrawer = true,clearUser()">没有用户？点击这里</el-button>
-            <el-drawer v-model="innerDrawer" title="注册" :append-to-body="true" size="37%">
-                <!-- 注册表单 -->
-                <el-form style="max-width: 100%" :model="userForm" status-icon label-width="auto">
+            <el-button @click="islogin = 3,clearUser()">没有用户？点击这里</el-button>
+            
+            <el-drawer 
+            v-model="innerDrawer" 
+            title="注册" 
+            :append-to-body="true" 
+            size="40%"
+            :close-on-click-modal="false" 
+            :close-on-press-escape="false" 
+            :show-close="false"             
+            >
+            <el-form style="max-width: 100%" :model="userForm" status-icon label-width="auto" ref="registerForm">
                     <el-form-item label="用户姓名" prop="uname">
-                        <el-input v-model="userForm.uname" />
+                        <el-input v-model="userForm.Uname" />
                     </el-form-item>
                     <el-form-item label="QQ号" prop="uqq">
-                        <el-input v-model="userForm.uqq" />
+                        <el-input v-model="userForm.Uqq" />
                     </el-form-item>
                     <el-form-item label="邮箱" prop="umile">
-                        <el-input v-model="userForm.umile" />
+                        <el-input v-model="userForm.Umile" />
                     </el-form-item>
                     <el-form-item label="手机号" prop="uphone">
-                        <el-input v-model="userForm.uphone" />
+                        <el-input v-model="userForm.Uphone" />
                     </el-form-item>
                     <el-form-item label="密码" prop="password">
-                        <el-input v-model="userForm.upass" type="password" autocomplete="off" />
+                        <el-input v-model="userForm.Upass" type="password" autocomplete="off" />
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="register(userForm),innerDrawer = false">
+                        <el-button type="primary" @click="regist(userForm)">
                             注册
                         </el-button>
                         <el-button @click="clearUser()">清除</el-button>
+                        <el-button @click="islogin = 2">返回登录</el-button>
                     </el-form-item>
                 </el-form>
             </el-drawer>
@@ -69,47 +86,38 @@
 
 <script lang="ts" setup>
 import { ref, watch, onBeforeMount } from 'vue'
-import { useViewStore } from '@/stores/view';
 import { storeToRefs } from 'pinia';
 import { ElMessageBox } from 'element-plus'
-import { useUserStore } from '@/stores/user';
+import { useUserStore } from '@/stores/store';
 
-
-import type { User } from '@/stores/user'
-
+import type { User } from '@/types/index'
+import { ca, tr } from 'element-plus/es/locales.mjs';
 
 const Huser = useUserStore()
-const view = useViewStore()
 
-const { islogin } = storeToRefs(view)
-const { user } = storeToRefs(Huser)
-const { login,register } = Huser
-
-
-const { setUserNull } = Huser
-
+// 正确解构 user 和 islogin
+const { islogin, currentUser } = storeToRefs(Huser) // 移除了 user 的解构
+const { login,regist } = Huser
 const drawer = ref(false)
 const innerDrawer = ref(false)
 
 const userForm = ref<User>({
-    uid: null,
-    upass: "",
-    uqq: "",
-    umile: "",
-    uphone: "",
-    uname: ""
+    Uid: null,
+    Upass: null,
+    Uqq: null,
+    Umile: null,
+    Uphone: null,
+    Uname: null
 })
 
-
 function clearUser() {
-    userForm.value.uid = null
-    userForm.value.upass = ""
-    userForm.value.uqq = ""
-    userForm.value.umile = ""
-    userForm.value.uphone = ""
-    userForm.value.uname = ""
+    userForm.value.Uid = null;
+    userForm.value.Upass = null;
+    userForm.value.Uqq = null;
+    userForm.value.Umile = null;
+    userForm.value.Uphone = null;
+    userForm.value.Uname = null;
 }
-
 
 const handleClose = (done: () => void) => {
     ElMessageBox.confirm('You still have unsaved data, proceed?')
@@ -127,17 +135,38 @@ const handleSelect = (key: string, keyPath: string[]) => {
 }
 
 function logout() {
-    islogin.value = false
-    // clearUser()
-
+    Huser.setUserNull();
 }
 
-watch(user, (newValue, oldValue) => {
-    if (newValue.uid != null) {
-        islogin.value = true
+// 使用正确的 user 引用
+watch(() => Huser.currentUser, (newValue, oldValue) => { // 直接监听 store 中的 user 属性
+    if (newValue?.Uid != null) {
+        islogin.value = 1
         drawer.value = false
     }
 })
+
+watch(() => islogin.value,(newValue , oldValue)=>{
+   switch(newValue){
+        case 0:
+            drawer.value = false
+            innerDrawer.value = false
+            break;
+        case 1:
+            drawer.value = false
+            innerDrawer.value = false
+            break;
+        case 2:
+            innerDrawer.value = false
+            drawer.value = true
+            break;
+        case 3:
+            drawer.value = false
+            innerDrawer.value = true
+            break;
+    }
+})
+
 
 
 </script>

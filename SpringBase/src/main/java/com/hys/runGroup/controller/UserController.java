@@ -31,6 +31,7 @@ public class UserController {
      */
     @GetMapping("/getAllUsers")
     public Result getAllUsers() {
+        System.out.println("收到获取所有用户的请求");
         return userService.getAllUsers();
     }
 
@@ -44,6 +45,7 @@ public class UserController {
      */
     @PostMapping("/addUser")
     public Result addUser(@RequestBody User user) {
+        System.out.println("收到增加用户的请求，用户对象: " + user);
         return userService.addUser(user);
     }
 
@@ -57,6 +59,7 @@ public class UserController {
      */
     @PostMapping("/deleteUser")
     public Result deleteUser(@RequestParam int uid) {
+        System.out.println("收到删除用户的请求，用户ID: " + uid);
         return userService.deleteUser(uid);
     }
 
@@ -70,6 +73,7 @@ public class UserController {
      */
     @PostMapping("/updateUser")
     public Result updateUser(@RequestBody User user) {
+        System.out.println("收到修改用户的请求，用户对象: " + user);
         return userService.updateUser(user);
     }
 
@@ -83,7 +87,7 @@ public class UserController {
      */
     @PostMapping("/login")
     public Result login(@RequestBody User user) {
-//        System.out.println(user);
+        System.out.println("收到用户登录的请求，用户对象: " + user);
         return userService.loginUser(user);
     }
 }

@@ -27,6 +27,7 @@ public class UAdminController {
      */
     @PostMapping("/login")
     public Result login(@RequestBody UAdmin uAdmin) {
+        System.out.println("收到管理员登录的请求，管理员对象: " + uAdmin);
         return uAdminService.loginUser(uAdmin);
     }
 }

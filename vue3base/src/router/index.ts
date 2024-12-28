@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HelloWorld from '@/components/HelloWorld.vue'
-import TableTest from '@/components/book/TableTest.vue'
+// import HelloWorld from '@/components/HelloWorld.vue'
+// import TableTest from '@/components/book/TableTest.vue'
 import Menu from '@/components/Menu.vue'
 
 const router = createRouter({
@@ -22,16 +22,16 @@ const router = createRouter({
     //   // which is lazy-loaded when the route is visited.
     //   component: () => import('../views/AboutView.vue')
     // }
-    {
-      path:'/hello',
-      name:'hello',
-      component:HelloWorld
-    },
-    {
-      path:'/table',
-      name:'table',
-      component:TableTest
-    },
+    // {
+    //   path:'/hello',
+    //   name:'hello',
+    //   component:HelloWorld
+    // },
+    // {
+    //   path:'/table',
+    //   name:'table',
+    //   component:TableTest
+    // },
   ]
 })
 

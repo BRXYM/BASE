@@ -1,5 +1,6 @@
 package com.hys.runGroup.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hys.runGroup.domain.User;
 import com.hys.runGroup.mapper.UserMapper;
 import com.hys.runGroup.service.UserService;
@@ -92,9 +93,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Result loginUser(User user) {
-        User login = userMapper.selectById(user.getUid());
+        User login = userMapper.selectOne(new QueryWrapper<User>().eq("hysUphone", user.getUphone()));
         if (login == null) {
-            return Result.fail("用户id错误");
+            return Result.fail("用户手机号错误");
         }
         // 优化: 避免两次查询数据库
         if (login.getUpass().equals(user.getUpass())) {
