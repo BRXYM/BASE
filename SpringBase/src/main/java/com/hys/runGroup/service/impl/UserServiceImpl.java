@@ -40,6 +40,11 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Result addUser(User user) {
+        // 查询电话号是否存在
+        User existingUser = userMapper.selectOne(new QueryWrapper<User>().eq("hysUphone", user.getUphone()));
+        if (existingUser != null) {
+            return Result.fail("电话号已经存在");
+        }
         int i = userMapper.insert(user);
         if (i > 0) {
             return Result.success(userMapper.selectById(user.getUid()), "添加成功");
