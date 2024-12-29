@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
-import { fetchUsers, addUser, deleteUser, loginUser, updateUser, fetchUserById } from '@/api/index';
-import type { User, Response } from '@/types';
+import { fetchUsers, addUser, deleteUser, loginUser, updateUser, fetchUserById } from '@/api/api';
+import type { User, Response } from '@/types/type';
 import { ElMessage } from 'element-plus'
 
 export const useUserStore = defineStore('user', {
@@ -14,18 +14,23 @@ export const useUserStore = defineStore('user', {
      * 获取所有用户
      */
     async fetchUsers() {
-      this.users = await fetchUsers() as unknown as User[];
+      const { data: { statusCode, code, list, message } } = await fetchUsers();
+      if (statusCode === 200) {
+        this.users = list as User[];
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 添加新用户
      * @param user - 用户对象
      */
     async regist(user: User) {
-      const {data:{statusCode,code,list,message}} = await addUser(user);
-      if(statusCode === 200){
+      const { data: { statusCode, code, list, message } } = await addUser(user);
+      if (statusCode === 200) {
         ElMessage.success("注册成功");
         this.islogin = 2;
-      }else{
+      } else {
         ElMessage.error(message);
       }
       // this.fetchUsers();
@@ -35,15 +40,19 @@ export const useUserStore = defineStore('user', {
      * @param id - 用户ID
      */
     async deleteUser(id: number) {
-      await deleteUser(id);
-      this.fetchUsers();
+      const { data: { statusCode, code, list, message } } = await deleteUser(id);
+      if (statusCode === 200) {
+        this.fetchUsers();
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 用户登录
      * @param userForm - 用户登录表单
      */
     async login(userForm: User) {
-      const {data:{statusCode,code,list,message}} = (await loginUser(userForm));
+      const { data: { statusCode, code, list, message } } = await loginUser(userForm);
       if (statusCode === 200) {
         this.currentUser = list; // 修改: 将 currentUser 赋值为 User 类型
         this.islogin = 1; // 设置登录状态为 1 0 未登录 1登录 2登录页面 3注册页面
@@ -57,15 +66,24 @@ export const useUserStore = defineStore('user', {
      * @param user - 用户对象
      */
     async updateUser(user: User) {
-      await updateUser(user);
-      this.fetchUsers();
+      const { data: { statusCode, code, list, message } } = await updateUser(user);
+      if (statusCode === 200) {
+        this.fetchUsers();
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 根据ID获取用户
      * @param id - 用户ID
      */
     async fetchUserById(id: number) {
-      this.currentUser = await fetchUserById(id) as unknown as User;
+      const { data: { statusCode, code, list, message } } = await fetchUserById(id);
+      if (statusCode === 200) {
+        return list;
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 设置用户为空
@@ -78,8 +96,8 @@ export const useUserStore = defineStore('user', {
 });
 
 
-import { getCommentsByMid, addComment, deleteComment, getAllComments, updateComment } from '@/api/index';
-import type { Comment } from '@/types';
+import { getCommentsByMid, addComment, deleteComment, getAllComments, updateComment } from '@/api/api';
+import type { Comment } from '@/types/type';
 
 
 export const useCommentStore = defineStore('comment', {
@@ -92,77 +110,109 @@ export const useCommentStore = defineStore('comment', {
      * @param mid - MID
      */
     async getCommentsByMid(mid: number) {
-      this.comments = await getCommentsByMid(mid) as unknown as Comment[];
+      const { data: { statusCode, code, list, message } } = await getCommentsByMid(mid);
+      if (statusCode === 200) {
+        this.comments = list as Comment[];
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 添加评论
      * @param comment - 评论对象
      */
     async addComment(comment: Comment) {
-      await addComment(comment);
-      this.getCommentsByMid(comment.MOid as number);
+      const { data: { statusCode, code, list, message } } = await addComment(comment);
+      if (statusCode === 200) {
+        this.getCommentsByMid(comment.MOid as number);
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 删除指定ID的评论
      * @param id - 评论ID
      */
     async deleteComment(id: number) {
-      await deleteComment(id);
-      this.getAllComments();
+      const { data: { statusCode, code, list, message } } = await deleteComment(id);
+      if (statusCode === 200) {
+        this.getAllComments();
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 获取所有评论
      */
     async getAllComments() {
-      this.comments = await getAllComments() as unknown as Comment[];
+      const { data: { statusCode, code, list, message } } = await getAllComments();
+      if (statusCode === 200) {
+        this.comments = list as Comment[];
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 更新评论
      * @param comment - 评论对象
      */
     async updateComment(comment: Comment) {
-      await updateComment(comment);
-      this.getCommentsByMid(comment.MOid as number);
+      const { data: { statusCode, code, list, message } } = await updateComment(comment);
+      if (statusCode === 200) {
+        this.getCommentsByMid(comment.MOid as number);
+      } else {
+        ElMessage.error(message);
+      }
     },
   },
 });
 
 
-import { getAllMTypes, getMTypeById } from '@/api/index';
-import type { MType } from '@/types';
+import { getAllMTypes, getMTypeById } from '@/api/api';
+import type { MType } from '@/types/type';
 
 
 export const useMTypeStore = defineStore('mtype', {
   state: () => ({
     mtypes: [] as MType[] | null,
-    currentMType: null as MType | null ,
+    currentMType: null as MType | null,
   }),
   actions: {
     /**
      * 获取所有MType
      */
     async getAllMTypes() {
-      this.mtypes = await getAllMTypes() as unknown as MType[];
+      const { data: { statusCode, code, list, message } } = await getAllMTypes();
+      if (statusCode === 200) {
+        this.mtypes = list as MType[];
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 根据ID获取MType
      * @param id - MType ID
      */
     async getMTypeById(id: number) {
-      this.currentMType = await getMTypeById(id) as unknown as MType;
+      const { data: { statusCode, code, list, message } } = await getMTypeById(id);
+      if (statusCode === 200) {
+        this.currentMType = list;
+      } else {
+        ElMessage.error(message);
+      }
     },
   },
 });
 
 
-import { addStow, deleteStow, getAllStows, getStowById, getStowsByUid, updateStow } from '@/api/index';
-import type { Stow } from '@/types';
+import { addStow, deleteStow, getAllStows, getStowById, getStowsByUid, updateStow } from '@/api/api';
+import type { Stow } from '@/types/type';
 
 
 export const useStowStore = defineStore('stow', {
   state: () => ({
     stows: [] as Stow[] | null,
-    currentStow: null as Stow | null ,
+    currentStow: null as Stow | null,
   }),
   actions: {
     /**
@@ -170,57 +220,84 @@ export const useStowStore = defineStore('stow', {
      * @param stow - 收藏对象
      */
     async addStow(stow: Stow) {
-      await addStow(stow);
-      this.getAllStows();
+      const { data: { statusCode, code, list, message } } = await addStow(stow);
+      if (statusCode === 200) {
+        this.getAllStows();
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 删除指定ID的收藏
      * @param id - 收藏ID
      */
     async deleteStow(id: number) {
-      await deleteStow(id);
-      this.getAllStows();
+      const { data: { statusCode, code, list, message } } = await deleteStow(id);
+      if (statusCode === 200) {
+        await this.getAllStows();
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 获取所有收藏
      */
     async getAllStows() {
-      this.stows = await getAllStows() as unknown as Stow[];
+      const { data: { statusCode, code, list, message } } = await getAllStows();
+      if (statusCode === 200) {
+        this.stows = list as Stow[];
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 根据ID获取收藏
      * @param id - 收藏ID
      */
     async getStowById(id: number) {
-      this.currentStow = await getStowById(id) as unknown as Stow;
+      const { data: { statusCode, code, list, message } } = await getStowById(id);
+      if (statusCode === 200) {
+        this.currentStow = list;
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 根据UID获取收藏
      * @param uid - 用户ID
      */
     async getStowsByUid(uid: number) {
-      this.stows = await getStowsByUid(uid) as unknown as Stow[];
+      const { data: { statusCode, code, list, message } } = await getStowsByUid(uid);
+      if (statusCode === 200) {
+        this.stows = list as Stow[];
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 更新收藏
      * @param stow - 收藏对象
      */
     async updateStow(stow: Stow) {
-      await updateStow(stow);
-      this.getAllStows();
+      const { data: { statusCode, code, list, message } } = await updateStow(stow);
+      if (statusCode === 200) {
+        this.getAllStows();
+      } else {
+        ElMessage.error(message);
+      }
     },
   },
 });
 
 
-import { addMessage, getAllMessages, getMessagesByToUid, getMessagesByUid, deleteMessage, updateMessage } from '@/api/index';
-import type { Message } from '@/types';
+import { addMessage, getAllMessages, getMessagesByToUid, getMessagesByUid, deleteMessage, updateMessage } from '@/api/api';
+import type { Message } from '@/types/type';
 
 
 export const useMessageStore = defineStore('message', {
   state: () => ({
     messages: [] as Message[] | null,
-    currentMessage: null as Message | null ,
+    currentMessage: null as Message | null,
   }),
   actions: {
     /**
@@ -228,57 +305,84 @@ export const useMessageStore = defineStore('message', {
      * @param message - 消息对象
      */
     async addMessage(message: Message) {
-      await addMessage(message);
-      this.getAllMessages();
+      const { data: { statusCode, code, list, message: msg } } = await addMessage(message);
+      if (statusCode === 200) {
+        this.getAllMessages();
+      } else {
+        ElMessage.error(msg);
+      }
     },
     /**
      * 获取所有消息
      */
     async getAllMessages() {
-      this.messages = await getAllMessages() as unknown as Message[];
+      const { data: { statusCode, code, list, message } } = await getAllMessages();
+      if (statusCode === 200) {
+        this.messages = list as Message[];
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 根据接收者UID获取消息
      * @param uid - 接收者UID
      */
     async getMessagesByToUid(uid: number) {
-      this.messages = await getMessagesByToUid(uid) as unknown as Message[];
+      const { data: { statusCode, code, list, message } } = await getMessagesByToUid(uid);
+      if (statusCode === 200) {
+        this.messages = list as Message[];
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 根据发送者UID获取消息
      * @param uid - 发送者UID
      */
     async getMessagesByUid(uid: number) {
-      this.messages = await getMessagesByUid(uid) as unknown as Message[];
+      const { data: { statusCode, code, list, message } } = await getMessagesByUid(uid);
+      if (statusCode === 200) {
+        this.messages = list as Message[];
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 删除指定ID的消息
      * @param id - 消息ID
      */
     async deleteMessage(id: number) {
-      await deleteMessage(id);
-      this.getAllMessages();
+      const { data: { statusCode, code, list, message } } = await deleteMessage(id);
+      if (statusCode === 200) {
+        this.getAllMessages();
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 更新消息
      * @param message - 消息对象
      */
     async updateMessage(message: Message) {
-      await updateMessage(message);
-      this.getAllMessages();
+      const { data: { statusCode, code, list, message: msg } } = await updateMessage(message);
+      if (statusCode === 200) {
+        this.getAllMessages();
+      } else {
+        ElMessage.error(msg);
+      }
     },
   },
 });
 
 
-import { addMode, deleteMode, getAllModes, getModeByIdAndUpdateSum, getModesByTid, getModesByUid, updateMode } from '@/api/index';
-import type { Mode } from '@/types';
+import { addMode, deleteMode, getAllModes, getModeByIdAndUpdateSum, getModesByTid, getModesByUid, updateMode } from '@/api/api';
+import type { Mode } from '@/types/type';
 
 
 export const useModeStore = defineStore('mode', {
   state: () => ({
     modes: [] as Mode[] | null,
-    currentMode: null as Mode | null ,
+    currentMode: null as Mode | null,
   }),
   actions: {
     /**
@@ -286,63 +390,95 @@ export const useModeStore = defineStore('mode', {
      * @param mode - 模式对象
      */
     async addMode(mode: Mode) {
-      await addMode(mode);
-      this.getAllModes();
+      const { data: { statusCode, code, list, message } } = await addMode(mode);
+      if (statusCode === 200) {
+        this.getAllModes();
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 删除指定ID的模式
      * @param id - 模式ID
      */
     async deleteMode(id: number) {
-      await deleteMode(id);
-      this.getAllModes();
+      const { data: { statusCode, code, list, message } } = await deleteMode(id);
+      if (statusCode === 200) {
+        this.getAllModes();
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 获取所有模式
      */
     async getAllModes() {
-      this.modes = await getAllModes() as unknown as Mode[];
+      const { data: { statusCode, code, list, message } } = await getAllModes();
+      if (statusCode === 200) {
+        this.modes = list as Mode[];
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 根据ID获取模式并更新统计信息
      * @param id - 模式ID
      */
     async getModeByIdAndUpdateSum(id: number) {
-      this.currentMode = await getModeByIdAndUpdateSum(id) as unknown as Mode;
+      const { data: { statusCode, code, list, message }} = await getModeByIdAndUpdateSum(id);
+      if (statusCode === 200) {
+        this.currentMode = list;
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 根据TID获取模式
      * @param tid - TID
      */
     async getModesByTid(tid: number) {
-      this.modes = await getModesByTid(tid) as unknown as Mode[];
+      const { data: { statusCode, code, list, message } } = await getModesByTid(tid);
+      if (statusCode === 200) {
+        this.modes = list as Mode[];
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 根据UID获取模式
      * @param uid - 用户ID
      */
     async getModesByUid(uid: number) {
-      this.modes = await getModesByUid(uid) as unknown as Mode[];
+      const { data: { statusCode, code, list, message } } = await getModesByUid(uid);
+      if (statusCode === 200) {
+        this.modes = list as Mode[];
+      } else {
+        ElMessage.error(message);
+      }
     },
     /**
      * 更新模式
      * @param mode - 模式对象
      */
     async updateMode(mode: Mode) {
-      await updateMode(mode);
-      this.getAllModes();
+      const { data: { statusCode, code, list, message } } = await updateMode(mode);
+      if (statusCode === 200) {
+        this.getAllModes();
+      } else {
+        ElMessage.error(message);
+      }
     },
   },
 });
 
 
-import { uAdminLogin } from '@/api/index';
-import type { UAdmin } from '@/types';
+import { uAdminLogin } from '@/api/api';
+import type { UAdmin } from '@/types/type';
 
 
 export const useUAdminStore = defineStore('uadmin', {
   state: () => ({
-    currentUAdmin: null as UAdmin | null ,
+    currentUAdmin: null as UAdmin | null,
   }),
   actions: {
     /**
@@ -350,7 +486,12 @@ export const useUAdminStore = defineStore('uadmin', {
      * @param UAdmForm - 管理员登录表单
      */
     async uAdminLogin(UAdmForm: UAdmin) {
-      this.currentUAdmin = await uAdminLogin(UAdmForm) as unknown as UAdmin;
+      const { data: { statusCode, code, list, message } } = await uAdminLogin(UAdmForm);
+      if (statusCode === 200) {
+        this.currentUAdmin = list;
+      } else {
+        ElMessage.error(message);
+      }
     },
   },
 });

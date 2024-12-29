@@ -24,12 +24,15 @@ export interface Message {
  * 模组表
  */
 export interface Mode {
-    MOid: number | null;
-    Tid: number | null;
-    Uid: number | null;
-    time: string | null;
-    txt: string | null;
-    sum: number | null;
+    MOid: number | null; // 模组id
+    Tid: number | null; // 分类id
+    Uid: number | null; // 用户id
+    name: string | null;// 名称
+    file: string | null;// 文件
+    download:number | null;// 下载文件
+    time: string | null;// 上传时间
+    txt: string | null;// 模组描述
+    sum: number | null;//收藏量
 }
 
 /**
@@ -44,10 +47,10 @@ export interface MType {
  * 收藏表
  */
 export interface Stow {
-    Sid: number | null;
-    Uid: number | null;
-    MOid: number | null;
-    time: string | null;
+    Sid: number | null; // 收藏id
+    Uid: number | null; // 用户id
+    MOid: number | null; // 模组id
+    time: string | null; //收藏时间
 }
 
 /**
@@ -66,6 +69,7 @@ export interface UAdmin {
  */
 export interface User {
     Uid: number | null;
+    Uimg: string | null;
     Uname: string | null;
     Uphone: string | null;
     Uqq: string | null;

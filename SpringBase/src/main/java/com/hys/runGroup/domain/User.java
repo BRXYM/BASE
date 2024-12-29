@@ -21,6 +21,10 @@ public class User {
     @JsonProperty("Uid")
     private int Uid;
 
+    @TableField("hysUimg")
+    @JsonProperty("Uimg")
+    private String Uimg;
+
     @TableField("hysUname")
     @JsonProperty("Uname")
     private String Uname;

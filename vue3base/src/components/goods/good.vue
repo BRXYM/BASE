@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { defineProps } from 'vue';
-import type { Good } from '@/types';
+import type { Good } from '@/types/type';
 import { API_URL } from '@/config'; // 导入全局配置
 
 // 定义 props

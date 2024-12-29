@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useGoodStore } from '@/stores/goodStore';
-import type { Good } from '@/types';
+import type { Good } from '@/types/type';
 import { API_URL } from '@/config';
 
 const goodStore = useGoodStore();

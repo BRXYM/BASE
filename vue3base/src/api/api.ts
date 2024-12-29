@@ -1,11 +1,11 @@
 import axios from 'axios';
-import type { User, Comment, MType, Stow, Message, Mode, UAdmin } from '@/types';
+import type { User, Comment, MType, Stow, Message, Mode, UAdmin } from '@/types/type';
 
 const API_URL = 'http://localhost:3000';
 // const API_URL = 'https://cn-bj-plc-2.ofalias.net:54284';
 
 // User API
-export const fetchUsers = () => axios.get(`${API_URL}/user`);
+export const fetchUsers = () => axios.get(`${API_URL}/user/getAllUsers`);
 export const addUser = (user: User) => axios.post(`${API_URL}/user/addUser`, user);
 export const deleteUser = (id: number) => axios.post(`${API_URL}/user/delete`, { id });
 export const loginUser = (userForm: User) => axios.post(`${API_URL}/user/login`, userForm);
@@ -43,7 +43,7 @@ export const updateMessage = (message: Message) => axios.post(`${API_URL}/messag
 export const addMode = (mode: Mode) => axios.post(`${API_URL}/mode/addMode`, mode);
 export const deleteMode = (id: number) => axios.delete(`${API_URL}/mode/deleteMode/${id}`);
 export const getAllModes = () => axios.get(`${API_URL}/mode/getAllModes`);
-export const getModeByIdAndUpdateSum = (id: number) => axios.get<Mode>(`${API_URL}/mode/getModeByIdAndUpdateSum/${id}`);
+export const getModeByIdAndUpdateSum = (id: number) => axios.get(`${API_URL}/mode/getModeByIdAndUpdateSum/${id}`);
 export const getModesByTid = (tid: number) => axios.get(`${API_URL}/mode/getModesByTid/${tid}`);
 export const getModesByUid = (uid: number) => axios.get(`${API_URL}/mode/getModesByUid/${uid}`);
 export const updateMode = (mode: Mode) => axios.put(`${API_URL}/mode/updateMode`, mode);

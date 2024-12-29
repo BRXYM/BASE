@@ -30,6 +30,18 @@ public class Mode {
     @JsonProperty("Uid")
     private int Uid;
 
+    @TableField("hysMOname")
+    @JsonProperty("name")
+    private String name;
+
+    @TableField("hysMOfile")
+    @JsonProperty("file")
+    private String file;
+
+    @TableField("hysMOdownload")
+    @JsonProperty("download")
+    private String download;
+
     @TableField("hysMOtime")
     @JsonProperty("time")
     private String time;

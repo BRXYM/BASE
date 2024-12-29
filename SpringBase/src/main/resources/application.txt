@@ -21,3 +21,8 @@ logging:
 
 server:
   port: 3000
+
+# 新增图片存储路径配置
+file:
+  upload:
+    dir: ./uploads/

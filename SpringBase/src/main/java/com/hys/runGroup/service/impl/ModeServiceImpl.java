@@ -7,7 +7,13 @@ import com.hys.runGroup.service.ModeService;
 import com.hys.runGroup.utils.Result;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -22,10 +28,26 @@ public class ModeServiceImpl implements ModeService {
     /**
      * 增加模组
      * @param mode - 模组对象
+     * @param file - 上传的文件
      * @return Result - 添加模组的结果
      */
     @Override
-    public Result addMode(Mode mode) {
+    public Result addMode(Mode mode, MultipartFile file) {
+        if (file != null && !file.isEmpty()) {
+            try {
+                String uploadDir = "uploads/";
+                Path uploadPath = Paths.get(uploadDir);
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+                String fileName = file.getOriginalFilename();
+                Path filePath = uploadPath.resolve(fileName);
+                file.transferTo(filePath.toFile());
+                mode.setFile(fileName);
+            } catch (IOException e) {
+                return Result.fail("文件上传失败");
+            }
+        }
         int insert = modeMapper.insert(mode);
         if (insert > 0) {
             return Result.success(mode, "添加成功");
@@ -66,10 +88,26 @@ public class ModeServiceImpl implements ModeService {
     /**
      * 修改模组
      * @param mode - 模组对象
+     * @param file - 上传的文件
      * @return Result - 更新模组的结果
      */
     @Override
-    public Result updateMode(Mode mode) {
+    public Result updateMode(Mode mode, MultipartFile file) {
+        if (file != null && !file.isEmpty()) {
+            try {
+                String uploadDir = "uploads/";
+                Path uploadPath = Paths.get(uploadDir);
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+                String fileName = file.getOriginalFilename();
+                Path filePath = uploadPath.resolve(fileName);
+                file.transferTo(filePath.toFile());
+                mode.setFile(fileName);
+            } catch (IOException e) {
+                return Result.fail("文件上传失败");
+            }
+        }
         int update = modeMapper.updateById(mode);
         if (update > 0) {
             return Result.success(mode, "更新成功");

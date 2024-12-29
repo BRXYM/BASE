@@ -1,4 +1,4 @@
-package com.hys.runGroup;
+package com.hys;
 
 
 import org.mybatis.spring.annotation.MapperScan;

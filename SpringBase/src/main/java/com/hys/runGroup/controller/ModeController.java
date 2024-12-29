@@ -5,6 +5,7 @@ import com.hys.runGroup.service.ModeService;
 import com.hys.runGroup.utils.Result;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 模组控制类
@@ -37,12 +38,13 @@ public class ModeController {
      * 请求路径: /mode/addMode
      * 请求参数:
      *   @RequestBody Mode mode - 模组对象
+     *   @RequestParam MultipartFile file - 上传的文件
      * 返回结果: Result<Void>
      */
     @PostMapping("/addMode")
-    public Result addMode(@RequestBody Mode mode) {
+    public Result addMode(@RequestBody Mode mode, @RequestParam MultipartFile file) {
         System.out.println("收到增加模组的请求，模组对象: " + mode);
-        return modeService.addMode(mode);
+        return modeService.addMode(mode, file);
     }
 
     /**
@@ -67,12 +69,13 @@ public class ModeController {
      * 请求路径: /mode/updateMode
      * 请求参数:
      *   @RequestBody Mode mode - 模组对象
+     *   @RequestParam(required = false) MultipartFile file - 上传的文件
      * 返回结果: Result<Void>
      */
     @PutMapping("/updateMode")
-    public Result updateMode(@RequestBody Mode mode) {
+    public Result updateMode(@RequestBody Mode mode, @RequestParam(required = false) MultipartFile file) {
         System.out.println("收到修改模组的请求，模组对象: " + mode);
-        return modeService.updateMode(mode);
+        return modeService.updateMode(mode, file);
     }
 
     /**
