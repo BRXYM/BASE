@@ -392,7 +392,7 @@ export const useModeStore = defineStore('mode', {
     async addMode(mode: Mode) {
       const { data: { statusCode, code, list, message } } = await addMode(mode);
       if (statusCode === 200) {
-        this.getAllModes();
+        // this.getAllModes();
       } else {
         ElMessage.error(message);
       }
@@ -404,7 +404,7 @@ export const useModeStore = defineStore('mode', {
     async deleteMode(id: number) {
       const { data: { statusCode, code, list, message } } = await deleteMode(id);
       if (statusCode === 200) {
-        this.getAllModes();
+        // this.getAllModes();
       } else {
         ElMessage.error(message);
       }

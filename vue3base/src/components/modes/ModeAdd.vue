@@ -110,7 +110,7 @@ import { FILE_URL } from '@/config';
 import { ElMessage } from 'element-plus';
 import { genFileId } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
-import type { UploadInstance, UploadProps, UploadRawFile, UploadResponse } from 'element-plus';
+import type { UploadInstance, UploadProps, UploadRawFile } from 'element-plus';
 
 const modeStore = useModeStore();
 const userStore = useUserStore();
@@ -225,6 +225,7 @@ const addNewMode = () => {
         sum: 0,
       };
       imageUrl.value = '';
+      modeStore.getModesByUid(currentUser.value.Uid);
     }).catch(() => {
       ElMessage.error("模组添加失败");
     });

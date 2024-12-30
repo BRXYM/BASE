@@ -4,7 +4,7 @@
       <el-radio-button v-for="type in mtypes" :key="type.Tid" :value="type.Tid?.toString()">{{ type.name }}</el-radio-button>
     </el-radio-group>
   </div>
-
+  <br/>
   <div>
     <el-space
         fill
