@@ -13,7 +13,7 @@ export const updateUser = (user: User) => axios.post(`${API_URL}/user/update`, u
 export const fetchUserById = (id: number) => axios.get(`${API_URL}/user/${id}`);
 
 // Comment API
-export const getCommentsByMid = (mid: number) => axios.post(`${API_URL}/comment/getCommentsByMid`, { mid });
+export const getCommentsByMid = (mid: number) => axios.get(`${API_URL}/comment/getCommentsByMid/${ mid }`,);
 export const addComment = (comment: Comment) => axios.post(`${API_URL}/comment/addComment`, comment);
 export const deleteComment = (id: number) => axios.post(`${API_URL}/comment/deleteComment`, { id });
 export const getAllComments = () => axios.post(`${API_URL}/comment/getAllComments`);

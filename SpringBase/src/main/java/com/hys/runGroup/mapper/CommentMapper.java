@@ -15,10 +15,4 @@ import java.util.List;
 @Mapper
 public interface CommentMapper extends BaseMapper<Comment> {
 
-    default List<Comment> selectByMOid(Integer id) {
-        QueryWrapper<Comment> queryWapper = new QueryWrapper<Comment>();
-        queryWapper.eq("hysCidMO", id);
-        return selectList(queryWapper);
-    }
-
 }

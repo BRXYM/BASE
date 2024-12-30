@@ -36,6 +36,17 @@
         <img :src="`${FILE_URL}/${selectedMode.file}`" class="dialog-product-image" /><br/>
         <el-button type="primary" @click="openFileInNewTab(selectedMode.download)">查看文件</el-button>
         <el-button type="success" @click="addStow(selectedMode)">收藏</el-button>
+        <br/>
+        <h3>评论</h3>
+        <el-card v-for="comment in comments" :key="comment.Cid" class="comment-card">
+          <template #header>
+            <div class="card-header">
+              <span>{{ getUserName(comment.Uid) }}</span>
+              <span>{{ comment.time }}</span>
+            </div>
+          </template>
+          <div class="comment-content">{{ comment.txt }}</div>
+        </el-card>
       </span>
       <template #footer>
         <div class="dialog-footer">
@@ -45,12 +56,11 @@
     </el-dialog>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, onMounted, computed, unref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useModeStore, useMTypeStore, useUserStore, useStowStore } from '@/stores/store';
-import type { Mode, MType,Stow } from '@/types/type';
+import { useModeStore, useMTypeStore, useUserStore, useStowStore, useCommentStore } from '@/stores/store';
+import type { Mode, MType, Stow, Comment } from '@/types/type';
 import { FILE_URL } from '@/config';
 import { ElMessage } from 'element-plus';
 
@@ -58,17 +68,19 @@ const modeStore = useModeStore();
 const userStore = useUserStore();
 const mTypeStore = useMTypeStore();
 const stowStore = useStowStore();
+const commentStore = useCommentStore();
 
 const { mtypes } = storeToRefs(mTypeStore);
 
 const modes = computed(() => modeStore.modes);
 const { users, islogin, currentUser } = storeToRefs(userStore);
+const { comments } = storeToRefs(commentStore);
 
 // 初始化 typeradio 为第一个类型的 Tid 或空字符串
 const typeradio = ref<string | undefined>('');
 
 onMounted(() => {
-  userStore.fetchUsers(); 
+  userStore.fetchUsers();
   mTypeStore.getAllMTypes().then(() => {
     const types = unref(mtypes);
     if (types && types.length > 0) {
@@ -85,13 +97,15 @@ const dialogVisible = ref(false);
 const selectedMode = ref<Mode | null>(null);
 
 // 打开模态框的方法
-const openDialog = (mode: Mode) => {
-  if(islogin.value === 0){
+const openDialog = async (mode: Mode) => {
+  if (islogin.value === 0) {
     ElMessage.error("请先登录");
     return;
   }
   selectedMode.value = mode;
   dialogVisible.value = true;
+  // 获取评论
+  await commentStore.getCommentsByMid(mode.MOid as number);
 };
 
 watch(typeradio, (newValue) => {

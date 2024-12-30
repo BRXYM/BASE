@@ -39,10 +39,10 @@ public class CommentController {
      *   @RequestBody Comment comment - 包含MOid的评论对象
      * 返回结果: Result<List<Comment>>
      */
-    @PostMapping("/getCommentsByMid")
-    public Result getCommentsByMid(@RequestBody Comment comment) {
-        System.out.println("收到获取所有评论的请求");
-        return commentService.getCommentsByMid(comment.getMOid());
+    @GetMapping("/getCommentsByMid/{Moid}")
+    public Result getCommentsByMid(@PathVariable int Moid) {
+        System.out.println("收到根据模组id获取所有评论的请求+"+Moid);
+        return commentService.getCommentsByMid(Moid);
     }
 
     /**

@@ -34,9 +34,12 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
      */
     @Override
     public Result getCommentsByMid(Integer id) {
-        List<Comment> comments = commentMapper.selectByMOid(id);
-        System.out.println(comments);
-        return Result.success(comments, "获取成功");
+        List<Comment> list = commentMapper.selectList(new QueryWrapper<Comment>().eq("hysCidMO",id));
+        if (list != null && !list.isEmpty()) {
+            return Result.success(list, "获取成功");
+        } else {
+            return Result.fail("列表为空");
+        }
     }
 
     /**

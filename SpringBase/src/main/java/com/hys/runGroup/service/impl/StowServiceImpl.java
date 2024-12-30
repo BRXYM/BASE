@@ -1,7 +1,9 @@
 package com.hys.runGroup.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.hys.runGroup.domain.Mode;
 import com.hys.runGroup.domain.Stow;
+import com.hys.runGroup.mapper.ModeMapper;
 import com.hys.runGroup.mapper.StowMapper;
 import com.hys.runGroup.service.StowService;
 import com.hys.runGroup.utils.Result;
@@ -18,6 +20,8 @@ public class StowServiceImpl implements StowService {
 
     @Resource
     private StowMapper stowMapper;
+    @Resource
+    private ModeMapper modeMapper;
 
     /**
      * 获取所有收藏信息
@@ -68,15 +72,25 @@ public class StowServiceImpl implements StowService {
      * @param stow - 收藏对象
      * @return Result - 添加收藏的结果
      */
-    @Override
-    public Result addStow(Stow stow) {
-        int insert = stowMapper.insert(stow);
-        if (insert > 0) {
-            return Result.success(stow, "添加成功");
+@Override
+public Result addStow(Stow stow) {
+    int insert = stowMapper.insert(stow);
+    if (insert > 0) {
+        // 插入成功后，根据stow中的moid 更新mode表中的sum字段让sum字段+1
+        int moid = stow.getMOid();
+        Mode mode = modeMapper.selectById(moid);
+        if (mode != null) {
+            mode.setSum(mode.getSum() + 1);
+            modeMapper.updateById(mode);
         } else {
-            return Result.fail("添加收藏失败");
+            return Result.fail("对应的模组不存在");
         }
+        return Result.success(stow, "添加成功");
+    } else {
+        return Result.fail("添加收藏失败");
     }
+}
+
 
     /**
      * 删除收藏
