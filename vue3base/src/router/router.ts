@@ -7,6 +7,7 @@ import CommentPage from '@/components/comments/CommentPage.vue';
 import MessagePage from '@/components/messages/MessagePage.vue';
 import StowPage from '@/components/stows/StowPage.vue';
 import ModeAdd from "@/components/modes/ModeAdd.vue";
+import Profile from "@/components/Profile.vue";
 
 
 const router = createRouter({
@@ -72,6 +73,15 @@ const router = createRouter({
         'app-main-list':StowPage
       }
     },
+    {
+      path: '/profile',
+      name: 'profile',
+      components: {
+        'app-header':Menu,
+        // 'app-main-welcome':,
+        'app-main-list':Profile
+      }
+    }
   ]
 })
 

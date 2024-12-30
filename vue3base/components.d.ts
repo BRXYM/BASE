@@ -45,6 +45,7 @@ declare module 'vue' {
     Modelist: typeof import('./src/components/modes/modelist.vue')['default']
     ModeList: typeof import('./src/components/modes/ModeList.vue')['default']
     ModeType: typeof import('./src/components/modes/ModeType.vue')['default']
+    Profile: typeof import('./src/components/Profile.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Stow: typeof import('./src/components/stows/Stow.vue')['default']
