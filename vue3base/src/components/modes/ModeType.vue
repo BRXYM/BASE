@@ -113,6 +113,7 @@ const openDialog = async (mode: Mode) => {
     ElMessage.error("请先登录");
     return;
   }
+  comments.value = [];
   selectedMode.value = mode;
   dialogVisible.value = true;
   // 获取评论
@@ -191,8 +192,7 @@ const sendComment = async () => {
       Cid: null,
       Uid: currentUser.value?.Uid as number,
       MOid: selectedMode.value.MOid,
-      txt: commentText.value,
-      time: new Date().toISOString(),
+      txt: commentText.value
     };
 
     await commentStore.addComment(comment).then(() => {
