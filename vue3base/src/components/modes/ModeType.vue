@@ -53,6 +53,11 @@
               <div class="comment-content">{{ comment.txt }}</div>
             </el-card>
           </div>
+          <!-- 评论输入框和发送按钮 -->
+          <div class="comment-input">
+            <el-input v-model="commentText" placeholder="请输入评论"></el-input>
+            <el-button type="primary" @click="sendComment">发送</el-button>
+          </div>
         </div>
       </div>
     </el-dialog>
@@ -165,6 +170,39 @@ const addStow = (mode: Mode) => {
     ElMessage.error("用户未登录");
   }
 };
+
+// 评论输入框的绑定值
+const commentText = ref<string>('');
+
+// 发送评论的方法
+const sendComment = async () => {
+  if (!islogin.value) {
+    ElMessage.error("请先登录");
+    return;
+  }
+
+  if (!commentText.value.trim()) {
+    ElMessage.error("评论内容不能为空");
+    return;
+  }
+
+  if (selectedMode.value) {
+    const comment: Comment = {
+      Cid: null,
+      Uid: currentUser.value?.Uid as number,
+      MOid: selectedMode.value.MOid,
+      txt: commentText.value,
+      time: new Date().toISOString(),
+    };
+
+    await commentStore.addComment(comment).then(() => {
+      ElMessage.success("评论成功");
+      commentText.value = ''; // 清空输入框
+    }).catch(() => {
+      ElMessage.error("评论失败");
+    });
+  }
+};
 </script>
 
 <style scoped>
@@ -256,8 +294,18 @@ const addStow = (mode: Mode) => {
 }
 
 .comments-scroll {
-  max-height: 90%; /* 设置评论区域的最大高度为100% */
+  max-height: 80%; /* 设置评论区域的最大高度为100% */
   overflow-y: auto; /* 添加垂直滚动条 */
   padding-right: 10px; /* 添加右侧内边距以避免滚动条遮挡内容 */
+}
+
+.comment-input {
+  display: flex;
+  margin-top: 20px;
+}
+
+.comment-input .el-input {
+  flex: 1;
+  margin-right: 10px;
 }
 </style>
