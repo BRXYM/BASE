@@ -73,6 +73,19 @@
                     <el-form-item label="密码" prop="password">
                         <el-input v-model="userForm.Upass" type="password" autocomplete="off" />
                     </el-form-item>
+                    <el-form-item label="头像">
+                        <el-upload
+                            class="avatar-uploader"
+                            :action="FILE_URL"
+                            :show-file-list="false"
+                            :on-success="handleAvatarSuccess"
+                            :before-upload="beforeAvatarUpload"
+                            :limit="1"
+                        >
+                            <img v-if="userForm.Uimg" :src="FILE_URL + '/' + userForm.Uimg" class="avatar" />
+                            <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+                        </el-upload>
+                    </el-form-item>
                     <el-form-item>
                         <el-button type="primary" @click="regist(userForm)">
                             注册
@@ -98,7 +111,6 @@ import {FILE_URL, UPLOAD_URL} from '@/config';
 
 import type { User } from '@/types/type'
 import { Plus, Delete, ZoomIn } from '@element-plus/icons-vue'
-import { v4 as uuidv4 } from 'uuid'; // 添加: 引入 uuid 库生成随机文件名
 
 const Huser = useUserStore()
 
@@ -126,7 +138,7 @@ function clearUser() {
     userForm.value.Umile = null;
     userForm.value.Uphone = null;
     userForm.value.Uname = null;
-    userForm.value.Uimg = null; // 添加: 清除头像字段
+    userForm.value.Uimg = null; // 清除头像字段
 }
 
 const activeIndex = ref('1')
@@ -160,6 +172,7 @@ watch(() => islogin.value, (newValue, oldValue) => {
         case 3:
             drawer.value = false
             innerDrawer.value = true
+            userForm.value.Uimg = null; // 初始化文件为空
             break;
     }
 })
@@ -200,7 +213,31 @@ function handleSelect(index: string) {
   }
 }
 
+// 添加: 定义 handleAvatarSuccess 方法
+const handleAvatarSuccess: UploadProps['onSuccess'] = (
+  response,
+  uploadFile
+) => {
+  userForm.value.Uimg = uploadFile.name
+}
 
+// 添加: 定义 beforeAvatarUpload 方法
+const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+  if (!['image/jpeg', 'image/png', 'image/gif'].includes(rawFile.type)) {
+    ElMessage.error('Avatar picture must be JPG, PNG, or GIF format!')
+    return false
+  }
+  // else if (rawFile.size / 1024 / 1024 > 2) {
+  //   ElMessage.error('Avatar picture size can not exceed 2MB!')
+  //   return false
+  // }
+
+  // 修改文件名为UUID
+  // const newFileName = uuidv4() + '.' + rawFile.type.split('/')[1]
+  // rawFile.name = newFileName
+
+  return true
+}
 </script>
 
 <style>
