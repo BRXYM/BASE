@@ -25,6 +25,14 @@
         <p>留言人: {{ getUserName(selectedMessage.Uid) }}</p>
         <p>留言时间: {{ selectedMessage.time }}</p>
         <p class="description">内容: {{ selectedMessage.txt }}</p>
+        <el-form :model="replyForm" label-width="80px">
+          <el-form-item label="回复">
+            <el-input v-model="replyForm.txt" type="textarea"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="sendReply">发送回复</el-button>
+          </el-form-item>
+        </el-form>
       </span>
       <template #footer>
         <div class="dialog-footer">
@@ -46,7 +54,7 @@ const messageStore = useMessageStore();
 const userStore = useUserStore();
 
 const { messages } = storeToRefs(messageStore);
-const { users, islogin,currentUser } = storeToRefs(userStore);
+const { users, islogin, currentUser } = storeToRefs(userStore);
 
 const direction = ref<'horizontal' | 'vertical'>('horizontal');
 const fillRatio = ref(20);
@@ -55,14 +63,47 @@ const fillRatio = ref(20);
 const dialogVisible = ref(false);
 const selectedMessage = ref<Message | null>(null);
 
+// 回复表单
+const replyForm = ref({
+  txt: '',
+  Uid: null as number | null,
+  MEid: null as number | null,
+});
+
 // 打开模态框的方法
 const openDialog = (message: Message) => {
-  if(islogin.value === 0){
+  if (islogin.value === 0) {
     ElMessage.error("请先登录");
     return;
   }
   selectedMessage.value = message;
+  replyForm.value.Uid = currentUser.value?.Uid || null;
+  replyForm.value.Utoid = message.Uid;
+  // replyForm.value.MEid = message.MEid;
   dialogVisible.value = true;
+};
+
+// 发送回复的方法
+const sendReply = async () => {
+  console.log(replyForm.value)
+  if (!replyForm.value.txt) {
+    ElMessage.error("回复内容不能为空");
+    return;
+  }
+
+  try {
+    await messageStore.addMessage({
+      txt: replyForm.value.txt,
+      Uid: currentUser.value.Uid,
+      Utoid: replyForm.value.Utoid
+      // MEid: replyForm.value.MEid,
+    });
+    ElMessage.success("回复成功");
+    replyForm.value.txt = '';
+    dialogVisible.value = false;
+  } catch (error) {
+    ElMessage.error("回复失败");
+  }
 };
 
 onMounted(() => {
