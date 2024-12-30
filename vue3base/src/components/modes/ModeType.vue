@@ -27,37 +27,34 @@
     </el-space>
 
     <!-- 模态框 -->
-    <el-dialog v-model="dialogVisible" title="模组详情" width="800" center>
-      <el-space :direction="direction" :fill-ratio="fillRatio" style="width: 100%">
+    <el-dialog v-model="dialogVisible" title="模组详情" width="80%" :height="dialogHeight" center>
+      <div class="dialog-content">
         <div class="details-column">
           <span v-if="selectedMode">
             <p>名称: {{ selectedMode.name }}</p>
             <p>收藏量: {{ selectedMode.sum }}</p>
-            <p class="description">描述: {{ selectedMode.txt }}</p>
+            <p class="description-show"> {{ selectedMode.txt }}</p>
             <p>上传用户: {{ getUserName(selectedMode.Uid) }}</p> <!-- 根据 Uid 获取用户名 -->
             <img :src="`${FILE_URL}/${selectedMode.file}`" class="dialog-product-image" /><br/>
             <el-button type="primary" @click="openFileInNewTab(selectedMode.download)">查看文件</el-button>
             <el-button type="success" @click="addStow(selectedMode)">收藏</el-button>
           </span>
         </div>
-        <div class="comments-column">
+        <div class="comments-column" :style="{ maxHeight: dialogHeight }">
           <h3>评论</h3>
-          <el-card v-for="comment in comments" :key="comment.Cid" class="comment-card">
-            <template #header>
-              <div class="card-header">
-                <span>{{ getUserName(comment.Uid) }}</span>
-                <span>{{ comment.time }}</span>
-              </div>
-            </template>
-            <div class="comment-content">{{ comment.txt }}</div>
-          </el-card>
+          <div class="comments-scroll">
+            <el-card v-for="comment in comments" :key="comment.Cid" class="comment-card">
+              <template #header>
+                <div class="card-header">
+                  <span>{{ getUserName(comment.Uid) }}</span>
+                  <span>{{ comment.time }}</span>
+                </div>
+              </template>
+              <div class="comment-content">{{ comment.txt }}</div>
+            </el-card>
+          </div>
         </div>
-      </el-space>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="dialogVisible = false">关闭</el-button>
-        </div>
-      </template>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -101,6 +98,9 @@ const fillRatio = ref(20);
 // 模态框相关状态
 const dialogVisible = ref(false);
 const selectedMode = ref<Mode | null>(null);
+
+// 计算模态框的最大高度
+const dialogHeight = ref<string>('70vh');
 
 // 打开模态框的方法
 const openDialog = async (mode: Mode) => {
@@ -215,13 +215,36 @@ const addStow = (mode: Mode) => {
   -webkit-box-orient: vertical; /* 设置文本方向为垂直 */
 }
 
+.description-show{
+  margin: 5px 0 0;
+  font-size:1em;
+  color: #666;
+  overflow: hidden; /* 隐藏溢出内容 */
+  text-overflow: ellipsis; /* 显示省略号 */
+  display: -webkit-box; /* 使用 WebKit 盒模型 */
+  -webkit-box-orient: vertical; /* 设置文本方向为垂直 */
+  overflow-y: auto; /* 添加垂直滚动条 */
+  max-height: 500px;
+
+}
+
+.dialog-content {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
 .details-column {
   width: 50%;
   padding-right: 20px;
+  box-sizing: border-box;
+  overflow-y: auto; /* 添加垂直滚动条 */
 }
 
 .comments-column {
   width: 50%;
+  box-sizing: border-box;
+  overflow-y: auto; /* 添加垂直滚动条 */
 }
 
 .comment-card {
@@ -230,5 +253,11 @@ const addStow = (mode: Mode) => {
 
 .comment-content {
   margin-top: 10px;
+}
+
+.comments-scroll {
+  max-height: 90%; /* 设置评论区域的最大高度为100% */
+  overflow-y: auto; /* 添加垂直滚动条 */
+  padding-right: 10px; /* 添加右侧内边距以避免滚动条遮挡内容 */
 }
 </style>
