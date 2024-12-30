@@ -45,10 +45,13 @@ import { useUserStore } from '@/stores/store'
 import { ElMessage } from 'element-plus'
 import { FILE_URL } from '@/config'
 import { Plus } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
 
 const userStore = useUserStore()
 const { currentUser } = storeToRefs(userStore)
 const { updateUser } = userStore
+const { islogin } = storeToRefs(userStore)
+const router = useRouter()
 
 const userForm = ref({
   Uid: null,
@@ -91,7 +94,9 @@ const beforeAvatarUpload = (rawFile) => {
 const updateUserProfile = async () => {
   try {
     await updateUser(userForm.value)
-    ElMessage.success('用户信息更新成功')
+    router.push({ name: 'home' })
+    islogin.value = 0
+    ElMessage.success('用户信息更新成功，请重新登录')
   } catch (error) {
     ElMessage.error('用户信息更新失败')
   }
