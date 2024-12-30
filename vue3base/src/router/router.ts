@@ -6,6 +6,7 @@ import ModeType from '@/components/modes/ModeType.vue';
 import CommentPage from '@/components/comments/CommentPage.vue';
 import MessagePage from '@/components/messages/MessagePage.vue';
 import StowPage from '@/components/stows/StowPage.vue';
+import ModeAdd from "@/components/modes/ModeAdd.vue";
 
 
 const router = createRouter({
@@ -38,7 +39,7 @@ const router = createRouter({
       components: {
         'app-header':Menu,
         // 'app-main-welcome':,
-        // 'app-main-list':ModeList
+        'app-main-list':ModeAdd
       }
     },
     // 评论
