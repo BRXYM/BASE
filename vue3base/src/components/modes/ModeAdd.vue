@@ -70,6 +70,7 @@
           <div class="card-header">
             <span>{{ mode.name }}</span>
             <el-button type="primary" text @click="openDialog(mode)">查看详情</el-button>
+            <el-button type="danger" text @click="deleteMode(mode.MOid)">删除</el-button> <!-- 添加删除按钮 -->
           </div>
         </template>
         <img :src="`${FILE_URL}/${mode.file}`" class="product-image" />
@@ -226,6 +227,19 @@ const addNewMode = () => {
       modeStore.getModesByUid(currentUser.value.Uid);
     }).catch(() => {
       ElMessage.error("模组添加失败");
+    });
+  } else {
+    ElMessage.error("用户未登录");
+  }
+};
+// 删除模组的方法
+const deleteMode = (MOid: number) => {
+  if (currentUser.value && currentUser.value.Uid !== null) {
+    modeStore.deleteMode(MOid).then(() => {
+      ElMessage.success("模组删除成功");
+      modeStore.getModesByUid(currentUser.value.Uid);
+    }).catch(() => {
+      ElMessage.error("模组删除失败");
     });
   } else {
     ElMessage.error("用户未登录");
