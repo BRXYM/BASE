@@ -42,9 +42,9 @@ public class ModeController {
      * 返回结果: Result<Void>
      */
     @PostMapping("/addMode")
-    public Result addMode(@RequestBody Mode mode, @RequestParam MultipartFile file) {
+    public Result addMode(@RequestBody Mode mode) {
         System.out.println("收到增加模组的请求，模组对象: " + mode);
-        return modeService.addMode(mode, file);
+        return modeService.addMode(mode);
     }
 
     /**

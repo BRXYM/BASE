@@ -224,7 +224,7 @@ const handleAvatarSuccess: UploadProps['onSuccess'] = (
 // 添加: 定义 beforeAvatarUpload 方法
 const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
   if (!['image/jpeg', 'image/png', 'image/gif'].includes(rawFile.type)) {
-    ElMessage.error('Avatar picture must be JPG, PNG, or GIF format!')
+    ElMessage.error('文件格式不正确');
     return false
   }
   // else if (rawFile.size / 1024 / 1024 > 2) {

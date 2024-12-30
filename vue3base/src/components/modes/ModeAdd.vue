@@ -1,5 +1,65 @@
 <template>
   <div>
+    <!-- 新增模组卡片 -->
+    <el-card class="add-mode-card">
+      <template #header>
+        <div class="card-header">
+          <span>新增模组</span>
+        </div>
+      </template>
+      <el-form :model="newMode" label-width="100px">
+        <el-form-item label="名称">
+          <el-input v-model="newMode.name"></el-input>
+        </el-form-item>
+        <el-form-item label="描述">
+          <el-input v-model="newMode.txt" type="textarea"></el-input>
+        </el-form-item>
+        <el-form-item label="模组类型">
+          <el-select v-model="newMode.Tid" placeholder="请选择模组类型">
+            <el-option
+              v-for="mtype in mtypes"
+              :key="mtype.Tid"
+              :label="mtype.name"
+              :value="mtype.Tid"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="文件上传">
+          <el-upload
+            ref="upload"
+            class="upload-demo"
+            :action="FILE_URL"
+            :limit="1"
+            :on-exceed="handleExceed"
+            :on-success="handleFileSuccess"
+            :before-upload="beforeFileUpload"
+          >
+            <template #trigger>
+              <el-button type="primary">选择文件</el-button>
+            </template>
+            <el-button class="ml-3" type="success" @click="submitUpload">
+              更新文件
+            </el-button>
+          </el-upload>
+        </el-form-item>
+        <el-form-item label="图片上传">
+          <el-upload
+            class="avatar-uploader"
+            :action="FILE_URL"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
+          >
+            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+            <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+          </el-upload>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="addNewMode">添加模组</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
     <el-space
         fill
         wrap
@@ -40,31 +100,53 @@
     </el-dialog>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useModeStore, useUserStore } from '@/stores/store';
-import type { Mode, User } from '@/types/type';
+import { useModeStore, useUserStore, useMTypeStore } from '@/stores/store';
+import type { Mode, User, MType } from '@/types/type';
 import { FILE_URL } from '@/config';
 import { ElMessage } from 'element-plus';
+import { genFileId } from 'element-plus';
+import { Plus } from '@element-plus/icons-vue';
+import type { UploadInstance, UploadProps, UploadRawFile, UploadResponse } from 'element-plus';
 
 const modeStore = useModeStore();
 const userStore = useUserStore();
+const mTypeStore = useMTypeStore();
 
 const { modes } = storeToRefs(modeStore);
 const { currentUser } = storeToRefs(userStore);
+const { mtypes } = storeToRefs(mTypeStore);
 
 // 模态框相关状态
 const dialogVisible = ref(false);
 const selectedMode = ref<Mode | null>(null);
 
+// 新增模组相关状态
+const newMode = ref<Mode>({
+  MOid: null,
+  name: '',
+  txt: '',
+  file: '',
+  download: null,
+  Uid: null,
+  Tid: null,
+  sum: 0,
+});
+
+const upload = ref<UploadInstance>();
+const imageUrl = ref('');
+const downloadUrl = ref('');
+
 onMounted(() => {
   if (currentUser.value && currentUser.value.Uid !== null) {
-    // userStore.fetchUsers();
     modeStore.getModesByUid(currentUser.value.Uid);
   } else {
     ElMessage.error("用户未登录");
   }
+  mTypeStore.getAllMTypes();
 });
 
 // 打开模态框的方法
@@ -94,7 +176,64 @@ const openFileInNewTab = (downloadPath: number | null) => {
 const addStow = (mode: Mode) => {
   // 这里假设已经实现了收藏功能，可以根据需要进行调整
 };
+
+// 文件上传处理函数
+const handleExceed: UploadProps['onExceed'] = (files) => {
+  upload.value!.clearFiles();
+  const file = files[0] as UploadRawFile;
+  file.uid = genFileId();
+  upload.value!.handleStart(file);
+};
+
+const submitUpload = () => {
+  upload.value!.submit();
+};
+
+// 图片路径获取函数
+const handleAvatarSuccess: UploadProps['onSuccess'] = (
+  response: UploadResponse,
+  uploadFile: UploadRawFile
+) => {
+  imageUrl.value = URL.createObjectURL(uploadFile.raw!);
+  newMode.value.file = uploadFile.name;
+};
+
+
+// 文件上传成功处理函数
+const handleFileSuccess: UploadProps['onSuccess'] = (
+  response: UploadResponse,
+  uploadFile: UploadRawFile
+) => {
+  downloadUrl.value = URL.createObjectURL(uploadFile.raw!)
+  newMode.value.download = uploadFile.name;
+};
+
+// 添加模组的方法
+const addNewMode = () => {
+  if (currentUser.value && currentUser.value.Uid !== null) {
+    newMode.value.Uid = currentUser.value.Uid;
+    modeStore.addMode(newMode.value).then(() => {
+      ElMessage.success("模组添加成功");
+      newMode.value = {
+        MOid: null,
+        name: '',
+        txt: '',
+        file: '',
+        download: null,
+        Uid: null,
+        Tid: null,
+        sum: 0,
+      };
+      imageUrl.value = '';
+    }).catch(() => {
+      ElMessage.error("模组添加失败");
+    });
+  } else {
+    ElMessage.error("用户未登录");
+  }
+};
 </script>
+
 
 <style scoped>
 .card-header {
@@ -143,5 +282,36 @@ const addStow = (mode: Mode) => {
   -webkit-line-clamp: 10; /* 设置显示的行数 */
   -webkit-box-orient: vertical; /* 设置文本方向为垂直 */
 }
-</style>
 
+/* 新增模组卡片样式 */
+.add-mode-card {
+  margin-bottom: 20px;
+}
+
+.avatar-uploader .avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
+
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
+}
+
+.el-icon.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  text-align: center;
+}
+</style>

@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface ModeService {
     //    新增模组
-    Result addMode(Mode mode, MultipartFile file);
+    Result addMode(Mode mode);
     //    删除模组
     Result deleteMode(Mode mode);
     //    获取所有模组

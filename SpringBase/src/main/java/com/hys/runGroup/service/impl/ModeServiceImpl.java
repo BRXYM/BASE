@@ -32,22 +32,7 @@ public class ModeServiceImpl implements ModeService {
      * @return Result - 添加模组的结果
      */
     @Override
-    public Result addMode(Mode mode, MultipartFile file) {
-        if (file != null && !file.isEmpty()) {
-            try {
-                String uploadDir = "uploads/";
-                Path uploadPath = Paths.get(uploadDir);
-                if (!Files.exists(uploadPath)) {
-                    Files.createDirectories(uploadPath);
-                }
-                String fileName = file.getOriginalFilename();
-                Path filePath = uploadPath.resolve(fileName);
-                file.transferTo(filePath.toFile());
-                mode.setFile(fileName);
-            } catch (IOException e) {
-                return Result.fail("文件上传失败");
-            }
-        }
+    public Result addMode(Mode mode) {
         int insert = modeMapper.insert(mode);
         if (insert > 0) {
             return Result.success(mode, "添加成功");
