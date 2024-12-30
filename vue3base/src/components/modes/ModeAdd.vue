@@ -32,7 +32,6 @@
             :limit="1"
             :on-exceed="handleExceed"
             :on-success="handleFileSuccess"
-            :before-upload="beforeFileUpload"
           >
             <template #trigger>
               <el-button type="primary">选择文件</el-button>
@@ -48,7 +47,6 @@
             :action="FILE_URL"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload"
           >
             <img v-if="imageUrl" :src="imageUrl" class="avatar" />
             <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>

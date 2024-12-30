@@ -46,7 +46,7 @@ const messageStore = useMessageStore();
 const userStore = useUserStore();
 
 const { messages } = storeToRefs(messageStore);
-const { users, islogin } = storeToRefs(userStore);
+const { users, islogin,currentUser } = storeToRefs(userStore);
 
 const direction = ref<'horizontal' | 'vertical'>('horizontal');
 const fillRatio = ref(20);
@@ -66,7 +66,7 @@ const openDialog = (message: Message) => {
 };
 
 onMounted(() => {
-  messageStore.getAllMessages();
+  messageStore.getMessagesByToUid(currentUser.value.Uid);
   userStore.fetchUsers();
 });
 

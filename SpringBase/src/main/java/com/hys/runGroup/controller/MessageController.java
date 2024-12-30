@@ -27,8 +27,8 @@ public class MessageController {
      *   @RequestParam int uid - 用户ID
      * 返回结果: Result<List<Message>>
      */
-    @GetMapping("/byUid")
-    public Result getMessagesByUid(@RequestParam int uid) {
+    @GetMapping("/byUid/{uid}")
+    public Result getMessagesByUid(@PathVariable int uid) {
         System.out.println("收到根据用户ID获取留言信息的请求，用户ID: " + uid);
         return messageService.getMessagesByUid(uid);
     }
@@ -41,9 +41,9 @@ public class MessageController {
      *   @RequestParam int utoid - 被评论用户ID
      * 返回结果: Result<List<Message>>
      */
-    @GetMapping("/byToUid")
-    public Result getMessagesByToUid(@RequestParam int utoid) {
-        System.out.println("收到根据被评论用户ID获取评论信息的请求，被评论用户ID: " + utoid);
+    @GetMapping("/byToUid/{utoid}")
+    public Result getMessagesByToUid(@PathVariable int utoid) {
+        System.out.println("收到根据被评论用户ID获取留言信息的请求，被评论用户ID: " + utoid);
         return messageService.getMessagesByToUid(utoid);
     }
 

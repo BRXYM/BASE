@@ -34,8 +34,8 @@ export const updateStow = (stow: Stow) => axios.put(`${API_URL}/stow/updateStow`
 // Message API
 export const addMessage = (message: Message) => axios.post(`${API_URL}/message/add`, message);
 export const getAllMessages = () => axios.get(`${API_URL}/message/all`);
-export const getMessagesByToUid = (uid: number) => axios.get(`${API_URL}/message/byToUid`, { params: { utoid: uid } });
-export const getMessagesByUid = (uid: number) => axios.get(`${API_URL}/message/byUid`, { params: { uid: uid } });
+export const getMessagesByToUid = (utoid: number) => axios.get(`${API_URL}/message/byToUid/${utoid}`);
+export const getMessagesByUid = (uid: number) => axios.get(`${API_URL}/message/byUid/${uid}`);
 export const deleteMessage = (id: number) => axios.post(`${API_URL}/message/delete`, { MEid: id });
 export const updateMessage = (message: Message) => axios.post(`${API_URL}/message/update`, message);
 

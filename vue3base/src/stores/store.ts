@@ -136,7 +136,7 @@ export const useCommentStore = defineStore('comment', {
     async deleteComment(id: number) {
       const { data: { statusCode, code, list, message } } = await deleteComment(id);
       if (statusCode === 200) {
-        this.getAllComments();
+        // this.getAllComments();
       } else {
         ElMessage.error(message);
       }
@@ -159,7 +159,7 @@ export const useCommentStore = defineStore('comment', {
     async updateComment(comment: Comment) {
       const { data: { statusCode, code, list, message } } = await updateComment(comment);
       if (statusCode === 200) {
-        this.getCommentsByMid(comment.MOid as number);
+        // this.getCommentsByMid(comment.MOid as number);
       } else {
         ElMessage.error(message);
       }
@@ -307,7 +307,7 @@ export const useMessageStore = defineStore('message', {
     async addMessage(message: Message) {
       const { data: { statusCode, code, list, message: msg } } = await addMessage(message);
       if (statusCode === 200) {
-        this.getAllMessages();
+        // this.getAllMessages();
       } else {
         ElMessage.error(msg);
       }
@@ -354,7 +354,7 @@ export const useMessageStore = defineStore('message', {
     async deleteMessage(id: number) {
       const { data: { statusCode, code, list, message } } = await deleteMessage(id);
       if (statusCode === 200) {
-        this.getAllMessages();
+        // this.getAllMessages();
       } else {
         ElMessage.error(message);
       }
@@ -366,7 +366,7 @@ export const useMessageStore = defineStore('message', {
     async updateMessage(message: Message) {
       const { data: { statusCode, code, list, message: msg } } = await updateMessage(message);
       if (statusCode === 200) {
-        this.getAllMessages();
+        // this.getAllMessages();
       } else {
         ElMessage.error(msg);
       }

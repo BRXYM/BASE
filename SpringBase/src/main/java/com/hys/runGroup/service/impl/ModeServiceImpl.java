@@ -28,7 +28,6 @@ public class ModeServiceImpl implements ModeService {
     /**
      * 增加模组
      * @param mode - 模组对象
-     * @param file - 上传的文件
      * @return Result - 添加模组的结果
      */
     @Override

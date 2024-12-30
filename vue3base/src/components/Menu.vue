@@ -7,7 +7,7 @@
         </el-menu-item>
         <el-menu-item index="mode">模组分类</el-menu-item>
         <el-menu-item index="uploadmode">上传模组</el-menu-item>
-        <el-menu-item index="comment">查看评论</el-menu-item>
+<!--        <el-menu-item index="comment">查看评论</el-menu-item>-->
         <el-menu-item index="message">留言信箱</el-menu-item>
         <el-menu-item index="stow">我的收藏</el-menu-item>
         <el-menu-item index="login" v-if="islogin === 0" @click="islogin = 2">登录</el-menu-item>

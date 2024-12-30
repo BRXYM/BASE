@@ -69,8 +69,12 @@ public class MessageServiceImpl implements MessageService {
      */
     @Override
     public Result getMessagesByUid(Integer uid) {
-        List<Message> messages = messageMapper.selectList(new QueryWrapper<Message>().eq("hysMEidU", uid));
-        return Result.success(messages, "查询发送者消息成功");
+        List<Message> list = messageMapper.selectList(new QueryWrapper<Message>().eq("hysMEidU", uid));
+        if (list != null && !list.isEmpty()) {
+            return Result.success(list, "获取成功");
+        } else {
+            return Result.fail("列表为空");
+        }
     }
 
     /**
