@@ -9,7 +9,7 @@ export const fetchUsers = () => axios.get(`${API_URL}/user/getAllUsers`);
 export const addUser = (user: User) => axios.post(`${API_URL}/user/addUser`, user);
 export const deleteUser = (id: number) => axios.post(`${API_URL}/user/delete`, { id });
 export const loginUser = (userForm: User) => axios.post(`${API_URL}/user/login`, userForm);
-export const updateUser = (user: User) => axios.post(`${API_URL}/user/update`, user);
+export const updateUser = (user: User) => axios.post(`${API_URL}/user/updateUser`, user);
 export const fetchUserById = (id: number) => axios.get(`${API_URL}/user/${id}`);
 
 // Comment API

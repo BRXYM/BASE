@@ -1,7 +1,7 @@
 <template>
   <div class="profile-container">
     <h1>个人中心</h1>
-    <el-form :model="userForm" status-icon label-width="auto" ref="profileForm">
+    <el-form :model="userForm" status-icon label-width="120px" ref="profileForm">
       <el-form-item label="用户姓名" prop="uname">
         <el-input v-model="userForm.Uname" />
       </el-form-item>
@@ -14,6 +14,9 @@
       <el-form-item label="手机号" prop="uphone">
         <el-input v-model="userForm.Uphone" />
       </el-form-item>
+      <el-form-item label="密码" prop="Upass">
+      <el-input v-model="userForm.Upass"/>
+    </el-form-item>
       <el-form-item label="头像">
         <el-upload
           class="avatar-uploader"
