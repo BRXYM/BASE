@@ -139,6 +139,7 @@ const removeStow = (stow: Stow) => {
   if (stow.Sid !== null) {
     stowStore.deleteStow(stow.Sid).then(() => {
       ElMessage.success("取消收藏成功");
+      stowStore.getStowsByUid(currentUser.value.Uid);
       dialogVisible.value = false;
       // 从 stows 列表中移除被选中的收藏
       stows.value = stows.value?.filter(s => s.Sid !== stow.Sid) || [];
