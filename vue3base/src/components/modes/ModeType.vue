@@ -27,27 +27,32 @@
     </el-space>
 
     <!-- 模态框 -->
-    <el-dialog v-model="dialogVisible" title="模组详情" width="500" center>
-      <span v-if="selectedMode">
-        <p>名称: {{ selectedMode.name }}</p>
-        <p>收藏量: {{ selectedMode.sum }}</p>
-        <p class="description">描述: {{ selectedMode.txt }}</p>
-        <p>上传用户: {{ getUserName(selectedMode.Uid) }}</p> <!-- 根据 Uid 获取用户名 -->
-        <img :src="`${FILE_URL}/${selectedMode.file}`" class="dialog-product-image" /><br/>
-        <el-button type="primary" @click="openFileInNewTab(selectedMode.download)">查看文件</el-button>
-        <el-button type="success" @click="addStow(selectedMode)">收藏</el-button>
-        <br/>
-        <h3>评论</h3>
-        <el-card v-for="comment in comments" :key="comment.Cid" class="comment-card">
-          <template #header>
-            <div class="card-header">
-              <span>{{ getUserName(comment.Uid) }}</span>
-              <span>{{ comment.time }}</span>
-            </div>
-          </template>
-          <div class="comment-content">{{ comment.txt }}</div>
-        </el-card>
-      </span>
+    <el-dialog v-model="dialogVisible" title="模组详情" width="800" center>
+      <el-space :direction="direction" :fill-ratio="fillRatio" style="width: 100%">
+        <div class="details-column">
+          <span v-if="selectedMode">
+            <p>名称: {{ selectedMode.name }}</p>
+            <p>收藏量: {{ selectedMode.sum }}</p>
+            <p class="description">描述: {{ selectedMode.txt }}</p>
+            <p>上传用户: {{ getUserName(selectedMode.Uid) }}</p> <!-- 根据 Uid 获取用户名 -->
+            <img :src="`${FILE_URL}/${selectedMode.file}`" class="dialog-product-image" /><br/>
+            <el-button type="primary" @click="openFileInNewTab(selectedMode.download)">查看文件</el-button>
+            <el-button type="success" @click="addStow(selectedMode)">收藏</el-button>
+          </span>
+        </div>
+        <div class="comments-column">
+          <h3>评论</h3>
+          <el-card v-for="comment in comments" :key="comment.Cid" class="comment-card">
+            <template #header>
+              <div class="card-header">
+                <span>{{ getUserName(comment.Uid) }}</span>
+                <span>{{ comment.time }}</span>
+              </div>
+            </template>
+            <div class="comment-content">{{ comment.txt }}</div>
+          </el-card>
+        </div>
+      </el-space>
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="dialogVisible = false">关闭</el-button>
@@ -56,6 +61,7 @@
     </el-dialog>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, onMounted, computed, unref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
@@ -207,5 +213,22 @@ const addStow = (mode: Mode) => {
   display: -webkit-box; /* 使用 WebKit 盒模型 */
   -webkit-line-clamp: 10; /* 设置显示的行数 */
   -webkit-box-orient: vertical; /* 设置文本方向为垂直 */
+}
+
+.details-column {
+  width: 50%;
+  padding-right: 20px;
+}
+
+.comments-column {
+  width: 50%;
+}
+
+.comment-card {
+  margin-bottom: 10px;
+}
+
+.comment-content {
+  margin-top: 10px;
 }
 </style>
