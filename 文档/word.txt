@@ -1,0 +1,481 @@
+Communication-Safe Web Programming in TypeScript with Routed Multiparty Session Types
+Abstract
+Anson Miu
+Imperial College London and Bloomberg United Kingdom
+Nobuko Yoshida Imperial College London United Kingdom
+Francisco Ferreira Imperial College London United Kingdom
+Fangyi Zhou
+Imperial College London United Kingdom
+ACM Reference Format:
+Modern web programming involves coordinating interac- tions between browser clients and a server. Typically, the interactions in web-based distributed systems are informally described, making it hard to ensure correctness, especially communication safety, i.e. all endpoints progress without type errors or deadlocks, conforming to a specified protocol. We present STScript, a toolchain that generates TypeScript APIs for communication-safe web development over Web-
+Sockets, and RouST, a new session type theory that supports multiparty communications with routing mechanisms.
+STScript provides developers with TypeScript APIs gen- erated from a communication protocol specification based on RouST. The generated APIs build upon TypeScript con- currency practices, complement the event-driven style of programming in full-stack web development, and are com- patible with the Node.js runtime for server-side endpoints and the React.js framework for browser-side endpoints.
+RouST can express multiparty interactions routed via an intermediate participant. It supports peer-to-peer commu- nication between browser-side endpoints by routing com- munication via the server in a way that avoids excessive serialisation. RouST guarantees communication safety for endpoint web applications written using STScript APIs.
+We evaluate the expressiveness of STScript for modern web programming using several production-ready case stud- ies deployed as web applications.
+CCS Concepts: • Software and its engineering → Source code generation; • Theory of computation → Distributed computing models.
+Keywords: TypeScript, WebSocket, API generation, session types, deadlock freedom, web programming
+
+CC ’21, March 2–3, 2021, Virtual, USA
+© 2021 Association for Computing Machinery.
+This is the author’s version of the work. It is posted here for your personal use. Not for redistribution. The definitive Version of Record was published in Proceedings of the 30th ACM SIGPLAN International Conference on Compiler Construction (CC ’21), March 2–3, 2021, Virtual, USA, hNps://doi.org/10.1145/
+3446804.3446854.
+Anson Miu, Francisco Ferreira, Nobuko Yoshida, and Fangyi Zhou. 2021. Communication-Safe Web Programming in TypeScript with Routed Multiparty Session Types. In Proceedings of the 30th ACM SIGPLAN International Conference on Compiler Construction (CC ’21), March 2–3, 2021, Virtual, USA. ACM, New York, NY, USA, 27 pages. hNps://doi.org/10.1145/3446804.3446854
+
+1	Introduction
+Web technology advancements have changed the way peo- ple use computers. Many services that required standalone applications, such as email, chat, video conferences, or even games, are now provided in a browser. While the Hypertext Transfer Protocol (HTTP) is widely used for serving web pages, its Request-Response model limits the communication patterns — the server may not send data to a client without the client first making a request.
+The WebSocket Protocol [12] addresses this limitation by providing a bi-directional channel between the client and the server, akin to a Unix socket. Managing the correct usage of WebSockets introduces an additional concern in the de- velopment process, due to a lack of WebSocket testing tools, requiring an (often ad-hoc) specification of the communica- tion protocol between server and clients.
+
+Figure 1. Travel Agency Protocol as a Sequence Diagram Consider the scenario in Fig. 1, where an online travel
+agency operates a “travelling with a friend” scheme (ignoring
+the blue dashed arrows). It starts when a traveller (B) sug- gests a trip destination to their friend (A), who then queries the travel agency (S) if the trip is available. If so, the friends discuss among themselves whether to accept or reject the quoted price. If the trip was unavailable, the friends start again with a new destination.
+An implementation of the travel agency protocol may contain programming errors, risking communication safety. For example, the following implementation of the client-side endpoint for traveller A sending a quote to traveller B.
+1 <input type='number' id='quote' />
+2  <button id='submitQuote'>Send Quote to B</button>
+3  <script>
+4  document.getElementById('submitQuote')
+5	.addEventListener('click', () => {
+6	const quote = document.getElementById('quote').value;
+7	travellerB.send({ label: 'quote', quote });
+8	travellerB.onMessage( /* go to different screen */ );
+9	/* ...snip... */ }); </script>
+There are subtle errors that violate the communication pro- tocol, but these bugs are unfortunately left for the developer to manually identify and test against:
+Communication Mismatch Whilst the input field man- dates a numerical value (Line 1) for the quote, the value from the input field is actually a string. If B expects a number and performs arithmetic operations on the received payload from A, the type mismatch may be left hidden due to implicit type coercion and cause unintended errors.
+Channel Usage Violation As B may take time to respond, A can experience a delay between sending the quote and receiving a response. Notice that the button remains active after sending the quote — A could click on the button again, and send additional quotes (thus reusing the communication channel), but B may be unable to deal with extra messages.
+Handling Session Cancellation An additional concern is how to handle browser disconnections, as both travellers can freely close their browsers at any stage of the protocol. Sup- pose S temporarily reserves a seat on A’s query. If A closes their browser, the developer would need to make sure that A notifies S prior to disconnecting, and S needs to implement recovery logic (e.g. releasing the reserved seat) accordingly.
+To prevent these errors and ensure deadlock-freedom, we propose to apply session types [14, 15] into practical interac- tive web programming. The scenario described in Fig. 1 can be precisely described with a global type using the typing discipline of multiparty session types (MPST) [15]. Well-typed implementations conform to the given global protocol, are guaranteed free from communication errors by construction. Whereas session type programming is well-studied [1], its application on web programming, in particular, interactive web applications, remains relatively unexplored. Integrat- ing session types with web programming has been piloted by recent work [13, 20, 24], yet none are able to seamlessly implement the previous application scenario: Fowler [13]
+uses binary (2-party) session types; and King et al. [20] re- quire each non-server role to only communicate to the server, hence preventing interactions between non-server roles (cf. talking to a friend in the scenario). The programming lan- guages used in these works are, respectively, Links [8] and PureScript [28], both not usually considered mainstream in the context of modern web programming. The Jolie lan- guage [24] focuses more on the server side, with limited support for an interactive front end of web applications.
+This paper presents a novel toolchain, Session TypeScript (STScript), for implementing multiparty protocols safely in web programming. STScript integrates with modern tools and practices, utilising the popular programming language Type- Script, front end framework React.js and back end runtime Node.js. Developers first specify a multiparty protocol and we generate correct-by-construction APIs for developers to implement the protocol. The generated APIs use WebSocket to establish communication between participants, utilising its flexibility over the traditional HTTP model. When de- velopers use our generated APIs to correctly implement the protocol endpoints, STScript guarantees the freedom from communication errors, including deadlocks, communication mismatches, channel usage violation or cancellation errors. Our toolchain is backed by a new session theory, a routed multiparty session types theory (RouST), to endow servers with the capacity to route messages between web clients. The new theory addresses a practical limitation that WebSocket connections still require clients to connect to a prescribed server, constraining the ability for inter-client communica- tion. To overcome this, our API routes inter-client messages through the server, improving the expressiveness over pre- vious work and enabling developers to correctly implement multiparty protocols, as we show with blue dashed arrows in Fig. 1. In our travel agency scenario, the agency plays the server role: it will establish WebSocket channels with each participant, and be tasked with routing all the messages between the friends. We formalise this routing mechanism as RouST and prove deadlock-freedom of RouST and show a behaviour-preserving encoding from the original MPST to RouST. The formalism and results in RouST directly guide a deadlock-free protocol implementation in Node.js via the router, preserving communication structures of the original
+protocol written by a developer.
+Finally, we evaluate our toolchain (STScript) by case stud- ies. We evaluate the expressiveness by implementing a num- ber of web applications, such as interactive multiplayer games (Noughts and Crosses, BaNleship) and web services (Travel Agency) that require routed communication.
+
+Contributions and Structure of the Paper.  2 presents an overview of our toolchain STScript, which generates APIs for communication-safe web applications in TypeScript from multiparty protocol descriptions.  3 motivates how the gen- erated code executes the multiparty protocol descriptions,
+
+Projection onto each Participant
+
+
+
+
+𝑇A
+A Global Type 𝐺
+
+ 
+
+Local Type for A
+Local Type for B
+Local Type for S
+Figure 3. Top-down MPST Design Methodology
+
+
+
+
+
+
+Figure 2. Overview of the toolchain STScript
+and present how STScript prevents common errors in the context of web applications.  4 presents RouST, multiparty session types (MPST) extended with routing, and define a trace-preserving encoding of the original MPST into RouST.
+ 5 evaluates our toolchain STScript via a case study of Noughts and Crosses and performance experiments.  6 gives related and future work.
+Appendix includes omitted code, definitions, performance benchmarks and detailed proofs. The artifact accompanying this paper [23] is available via DOI or at hNps://github.com/ STScript-2020/cc21-artifact, containing the source code of STScript, with implemented case studies and performance benchmarks. See Appendix A for details about the artifact.
+2	Overview
+In this section, we give an overview of our code generation toolchain STScript (Fig. 2), demonstrate how to implement the travel agency scenario (Fig. 1) as a TypeScript web appli- cation, and explain how STScript prevents those errors.
+Multiparty Session Type Design Workflow. Multiparty session types (MPST) [15] use a top-down design method- ology (Fig. 3). Developers begin with specifying the global communication pattern of all participants in a global type or a global protocol. The protocol is described in the Scrib- ble protocol description language [16, 31, 34]. We show the global protocol of the travel agency scenario (in  1) in Fig. 4. The Scribble language provides a user-friendly way to de- scribe the global protocol in terms of a sequence of message exchanges between roles. A message is identified by its label (e.g. Suggest, Query, etc), and carries payloads (e.g. number, string, etc). The choice syntax (e.g. Line 4) describes pos- sible branches of the protocol – in this case, the Server may
+1 global protocol TravelAgency(role A, role B, role S)
+2  { Suggest(string) from B to A;//friend suggests place
+3	Query(string) from A to S;
+4	choice at S
+5	{ Available(number) from S to A;
+6	Quote(number) from A to B;//check price with friend
+7	choice at B
+8	{ OK(number) from B to A;
+9	Confirm(credentials) from A to S; }
+10	or { No() from B to A;
+11	Reject() from A to S; } }
+12	or { Full() from S to A; Full() from A to B;
+13	do TravelAgency(A, B, S); } }
+Figure 4. Travel Agency Protocol in Scribble
+
+respond to the query either with Available, so the customer continues booking, or with Full, so the customer retries by restarting the protocol via the do syntax (Line 13).
+In this scenario, we designate the roles A and B as client
+roles, and role S as a server role. Participating endpoints can obtain their local views of the communication proto- col, known as local types, via projection from the specified global type (Fig. 3). The local type of an endpoint can be then used in the code generation process, to generate APIs that are correct by construction [17, 20, 35].
+The code generation toolchain STScript (Fig. 2) follows the MPST design philosophy. In STScript, we take the global protocol as inputs, and generate endpoint code for a given role as outputs, depending on the nature of the role. We use the Scribble toolchain for initial processing, and use an endpoint finite state machine (EFSM) based code generation technique targeting the TypeScript Language.
+Targeting Web Programming. The TypeScript [2] pro- gramming language is used for web programming, with a static type system and a compiler to JavaScript. TypeScript programs follow a similar syntax to JavaScript, but may contain type annotations that are checked statically by the TypeScript type-checker. After type-checking, the compiler converts TypeScript programs into JavaScript programs, so they can be run in browsers and other hosts (e.g. Node.js).
+ To implement a wide variety of communication patterns, we use the WebSocket protocol [12], enabling bi-directional communication between the client and the server after con- nection. This contrasts with the traditional request-response model of HTTP, where the client needs to send a request and the server may only send a response after receiving the
+
+Figure 5. EFSM for TravelAgency role A
+request. WebSockets require an endpoint to listen for connec- tions and the other endpoint connecting. Moreover, clients, using the web application in a browser, may only start a connection to a WebSocket, and servers may only listen for new connections. The design of WebSocket limits the ability for two clients to communicate directly via a WebSocket (e.g. Line 2 in Fig. 4). STScript uses the server to route messages between client roles, enabling communication between all participants via a star network topology.
+An important aspect of web programming is the interac- tivity of the user interface (UI). Viewed in a browser, the web application interacts with the user via UI events, e.g. mouse clicks on buttons. The handling of UI events may be imple- mented to send messages to the client (e.g. when the “Submit” button on the form is clicked), which may lead to practical problems. For instance, would clicking “Submit” button twice create two bookings for the customer? We use the popular React.js UI framework for generating client endpoints, and generate APIs that prevent such errors from happening.
+Callback-Style API for Clients and Servers. Our code generation toolchain STScript produces TypeScript APIs in a callback style [35] to statically guarantee channel linearity. The input global protocol is analysed by the toolchain for well-formedness, and an endpoint finite state machine (EFSM) is produced for each endpoint. We show the EFSM for role A in Fig. 5. The states in the EFSM represent local types (sub- ject to reductions) and transitions represent communication actions (Symbol ! stands for sending actions, ? for receiving). In the callback API style, type signatures of callbacks are generated for transitions in the EFSM. Developers imple- ment the callbacks to complete the program logic part of the application, whilst a generated runtime takes care of the communication aspects. For callbacks, sending actions cor- respond to callbacks prompting the payload type as a return type, so that the returned value can be sent by the runtime. Dually, receiving actions correspond to callbacks taking the payload type as an argument, so that the runtime invokes
+the callback with the received value.
+Implementing the Server Role. In the travel agency pro- tocol, as shown in Fig. 4, we designate role S as the server role. The server role does not only interact with the two clients, but also routes messages for the two clients. The routing will be handled automatically by the runtime, sav- ing the need for developers to specify manually. As a result, the developer only handles the program logic regarding the
+Figure 6. IDE Auto-Completion for Successor State
+server, in this use case, namely providing quotes for holiday bookings and handling booking confirmations.
+1  import { Session, S } from "./TravelAgency/S";
+2  const agencyProvider = (sessionID: string) => {
+3	const handleQuery = Session.Initial({
+4	Query: async (Next, dest) => {
+5	// Provide quotes for holiday bookings
+6	const res = await checkAvailability(sessionID, dest);
+7	if (res.status === "available") {
+8	return Next.Available([res.quote], Next => ...);
+9	} else { return Next.Full([], handleQuery); } }, });
+10	return handleQuery; };
+All callbacks carry an extra parameter, Next, which acts as a factory function for constructing the successor state. This empowers IDEs to provide auto-completion for developers. For example, the factory function provided by the callback for handling a Query message (Line 4) prompts the permitted labels in the successor send state, as illustrated in Fig. 6.
+Implementing the Client Roles. To implement client roles, merely implementing the callbacks for the program logic is not sufficient — unlike servers, web applications have interactive user interfaces, additional to program logic. As mentioned previously, our code generation toolchain tar- gets React.js for client roles. For background, the smallest building blocks in React.js are components, which can carry properties (immutable upon construction) and states (muta- ble). Components are rendered into HTML elements, and they are re-rendered when the component state mutates.
+To bind the program logic with an interactive user in- terface, we provide component factories that allow the UI component to be interposed with the current state of the EFSM. Developers can provide the UI event handler to the component factory, and obtain a component for rendering. The generate code structure enforces that the state transition strictly follows the EFSM, so programmer errors (such as the double “submit” problem) are prevented by design.
+1 render() {
+2	const OK = this.OK('onClick', () => [this.state.split]);
+3	const NO = this.No('onClick', () => []);
+4	return (...
+5	<NO><Button color='secondary'>No</Button></NO>
+6	<OK><Button color='primary'>OK</Button></OK> ...); }
+Using the send state component in the FSM for the end- point B as an example, Line 2 reads, “generate a React com- ponent that sends the OK message with this.state.split as payload on a click event”. It is used on Line 6 as a wrapper for a stylised <Button> component. The runtime invokes the handler and performs the state transition, which prevents the double “submit” problem by design.
+Guaranteeing Communication Safety. Returning to the implementation in  1, we outline how STScript prevents common errors to enable type-safe web programming.
+Communication Mismatch All generated callbacks are typed according to the permitted payload data type specified in the protocol, making it impossible for traveller A to send the quote as a string by accident.
+Channel Usage Violation The generated client-side run- time requires the developer to provide different UI compo- nents for each EFSM state – once traveller A submits a quote, the runtime will transition to, thus render the component of, a different EFSM state. This guarantees that, whilst waiting for a response from traveller B, it is impossible for traveller A to submit another quote and violate channel linearity.
+Handling Session Cancellation If either traveller closes their browser before the protocol runs to completion, the generated runtimes leverage the events available on their WebSocket connections to notify (via the server) other roles about the session cancellation. The travel agency can imple- ment the error handler callback (generated by STScript) to perform clean-up logic in response to cancellations.
+3	Implementation
+In this section, we explain how the generated code executes the EFSM for Node.js and React.js targets. We also present how STScript APIs handle errors in a dynamic web-based environment (for complete code, see Appendix E).
+Session Runtime. The session runtime executes the EFSM in a manner permitted by the multiparty protocol descrip- tion. The runtime keeps track of the current state, performs the required communication action (i.e. send or receive a message), and transitions to the successor state. The runtime provides seams for the developer to inject the callback imple- mentations, which define application-specific concerns for the EFSM, such as what message payload to send (and dually, how to process a received message). This design conceals the WebSocket APIs from the developer and entails that the developer cannot trigger a send or receive action, so STScript can statically guarantee protocol conformance.
+Executing the EFSM in Node.js. Each state of the EFSM is characterised by a (generated) State class and a type de- scribing the shape of the callback (supplied by the developer). To allow the server to correctly manage concurrent sessions, the developer can access a (generated) session ID when imple- menting the callbacks. STScript also generates IO interfaces
+for each kind of EFSM state – send, receive, or terminal. The generated State class implements the interface correspond- ing to the type of communication action it performs.
+1  next(state: State.Type) {
+2	switch (state.type) {
+3	case 'Send': return state.performSend(
+4	this.next, this.cancel, this.send);
+5	case 'Receive': return state.prepareReceive(
+6	this.next, this.cancel, this.registerMessageHandler);
+7	case 'Terminal': return; }}
+The session runtime for Node.js is a class that executes the EFSM using a state transition function parameterised by the State class of the current EFSM state. As the IO interfaces constitute a discriminated union, the runtime can parse the type of the current EFSM state and propagate the appropriate IO functions (for sending or receiving) to the State class. In turn, the State class invokes the callback supplied by the developer to inject program logic into the EFSM, perform the communication action (using this.send or this.registerMessageHandler), and invoke the state transition function (this.next) with the successor state.
+Notably, the routed messages are completely absent be- cause the generated code transparently routes messages with- out exposing any details. As messages specify their intended recipient, the runtime identifies messages not intended for the server by inspecting the metadata, and forwards them to the WebSocket connected to the intended recipient.
+Executing the EFSM in React.js. Each state in the EFSM is encoded as an abstract React component. The developer implements the EFSM by extending the abstract classes to provide their own implementation – namely, to build their user interface. Components for send states can access com- ponent factories to generate React components that perform a send action when a UI event (e.g. onClick, onMouseOver) is triggered. Components for receive states must implement abstract methods to handle all possible incoming messages. The session runtime for React.js is a React component, instantiated using the developer’s implementation of each EFSM state. Channel communications are managed by the runtime, so the developer’s implementations cannot access the WebSocket APIs, which prevents channel reuse by con- struction. The runtime renders the component of the current EFSM state and binds the permitted communication action
+through supplying component properties.
+Error Handling. An error handling mechanism is critical for web applications. Clients can disconnect from the session due to network connectivity issues or simply by closing the browser. Similarly, servers may also face connectivity issues. Upon instantiating the session runtime, STScript requires developers to supply a cancellation handler to handle local exceptions (e.g. errors thrown by application logic) and global session cancellations (e.g. disconnection events by another
+endpoint). The session runtime detects cancellation by lis- tening to the close event on the WebSocket connection, and invokes the cancellation handler with appropriate arguments on a premature close event. We parameterise the cancellation handlers with additional information (e.g. which role discon- nected from the session, the reason for the disconnection) to let developers be more specific in their error handling logic.
+as protocols and describe the communication behaviour be- tween all participating roles (participants), while local types describe the behaviour of a single participating role. We shade additions to the original (or canonical) multiparty ses- sion type (MPST) [9, 11, 15, 30] in  this colour .
+Definition 4.1 (Global and Local Types). The syntax of
+global and local types are defined below:
+Cancellation Handlers for Servers. Server endpoints define cancellation handlers through a function, parame-
+𝐺 ::= end | t | 𝜇t.𝐺
+| p → q : {𝑙𝑖 :𝐺𝑖 }𝑖 ∈𝐼
+𝑇 ::= end | t | 𝜇t.𝑇
+| p ⊕ {𝑙𝑖 :𝑇𝑖 }𝑖 ∈𝐼
+terised by the session ID, the role which initiated the cancel-
+	| p −s⭢ q : {𝑙𝑖 :𝐺𝑖 }𝑖 ∈𝐼	| p & {𝑙𝑖 :𝑇𝑖 }𝑖 ∈𝐼
+lation, and (optionally) the reason for the cancellation — if the server-side logic throws an exception, the handler can access the thrown error through the reason parameter.
+1  const handleCancel = async (sessionID, role, reason) => {
+2	if (role === Role.Self) {
+3	console.error(`${sessionID}: internal server error`); }
+4	else { await tryRelease(sessionID); }};
+5  // Instantiate session runtime
+6  new S(wss, handleCancel, agencyProvider);
+Using the Travel Agency scenario introduced in  1, if the customer prematurely closes their browser before respond- ing to a Quote, the server can detect this (Line 4) and release the reservation to preserve data integrity.
+Cancellation Handlers for Clients. Browser-side end- points also define cancellation handlers through a function parameterised in the same way as those in Node.js, but must return a React component to be rendered by the session runtime. In the context of the Travel Agency scenario, the customer can render a different UI depending on whether the server disconnected or their friend closed their web browser prematurely. Browser endpoints can also respond to cancel- lations emitted by other client-side roles: when a browser endpoint disconnects, the server detects this and propagates the cancellation to the other client-side roles.
+4	RouST: Routed Session Types
+This section defines the syntax and semantics of RouST and proves some important properties. We show the sound and complete trace correspondence between a global type and a collection of endpoint types projected from the global
+Global Types. p → q : {𝑙𝑖 :𝐺𝑖 }𝑖 ∈𝐼 describes a direct com- munication of a message 𝑙𝑖 from a role p to q. We require that p ≠ q, that labels 𝑙𝑖 are pairwise distinct, and that the index set 𝐼 is not empty. The message in the communica- tion can carry a label among a set of permitted labels 𝑙𝑖 and some payload. After a message with label 𝑙𝑖 is received by q, the communication continues with 𝐺𝑖 , according to the chosen label. For simplicity, we do not include payload
+types (integers, strings, booleans, etc) in the syntax. We write p → q : 𝑙 : 𝐺 for single branches. For recursion, we adopt an equi-recursive view [27, 21], and use 𝜇t.𝐺 and t for a recursive protocol and a type variable. We require that re- cursive types are contractive (guarded), i.e. the recursive type
+𝜇t.𝐺 progresses after the substitution 𝐺 [𝜇t.𝐺/t], prohibiting types such as 𝜇t.t. We use end to mark the termination of the protocol, and often omit the final end.
+To support routed communication, we allow messages
+to be sent through a router role. A routed communication p −s⭢ q : {𝑙𝑖 :𝐺𝑖 }𝑖 ∈𝐼 describes a router role s coordinating the communication of a message from p to q: q offers p a choice in the index set 𝐼 , but p sends the selected choice 𝑙𝑖 to the router s instead. The router forwards the selection from p to q. After q receives p’s selection, the communication continues with 𝐺𝑖 . s ranges over the set of roles p, q, · · · , but we use s by convention as the router is usually some server. The syntax for routed communication shares the
+same properties as direct communication, but we additionally require that p ≠ q ≠ s. We use pt (𝐺) to denote the set of participants in the global type 𝐺.
+Example 4.2 (Travel Agency). The travel agency protocol, as shown in Fig. 4, is described by the global type 𝐺travel in
+type (Theorem 4.6). Using this result, we prove deadlock
+freedom (Theorem 4.7). We then show that, in spite of the
+the original MPST, and 𝐺𝑅	in RouST.
+added routed communications, RouST does not over-serialise communications by proving communication preservations be-
+tween the original MPST and RouST (Theorem 4.11). These
+4.1	Syntax of Routed Multiparty Session Types
+We define the syntax of global types 𝐺 and local types (or end- point types) 𝑇 in Definition 4.1. Global types are also known
+Local Types. We first describe the local types in the orig- inal MPST theory. q & {𝑙𝑖 :𝑇𝑖 }𝑖 ∈𝐼 stands for branching and q ⊕ {𝑙𝑖 :𝑇𝑖 }𝑖 ∈𝐼 stands for selection. From the perspective of p, branching (resp. selection) offers (resp. selects) a choice among an index set 𝐼 to (resp. from) q, and communication continues with the corresponding 𝑇𝑖 . Local types 𝜇t.𝑇 , t and end have the same meaning as their global type counterparts. We add new syntax to express routed communication from the perspective of each role involved. The local type
+Well-formedness. In the original theory, a global type 𝐺 is well-formed (or realisable), denoted wellFormed (𝐺), if the projection is defined for all its participants.
+wellFormed (𝐺) def ∀p ∈ pt (𝐺). 𝐺 ↾ p exists
+We assume that the global type 𝐺 is contractive (guarded).
+In RouST, we say that a global type is well-formed with respect to the role s acting as the router. We define the charac- teristics that s must display in 𝐺 to prove that it is a router,
+p &⟨s⟩ {𝑙𝑖 :𝑇𝑖 }𝑖 ∈𝐼 is a routed branching: the current role is
+and formalise this as an inductive relation, 𝐺 ⊛ s (Defini-
+tion 4.5), which reads s is a centroid in 𝐺. The intuition is
+offering a choice from an index set 𝐼 to p (the intended sender), but expects to receive p’s choice via the router role s; if the message received is labelled 𝑙𝑖 , q will continue with local type 𝑇𝑖 . The local type q ⊕ ⟨s⟩ {𝑙𝑖 :𝑇𝑖 }𝑖 ∈𝐼 is a routed se- lection: the current role makes a selection from an index set 𝐼 to q (the intended recipient), but sends the selection to the router role s; if the message sent is labelled 𝑙𝑖 , p will
+that s is at the centre of all communication interactions.
+Definition 4.5 (Centroid). The relation 𝐺 ⊛ s (s is the cen- troid of 𝐺) is defined by the two axioms end ⊛ s and t ⊛ s and by the following rules:
+𝐺 ⊛ s	s ∈ {p, q} ∀𝑖 ∈ 𝐼 . 𝐺𝑖 ⊛ s r = s	∀𝑖 ∈ 𝐼 . 𝐺𝑖 ⊛ s
+     
+𝜇t.𝐺 ⊛ s  p → q : {𝑙𝑖 : 𝐺𝑖 }𝑖 ∈𝐼 ⊛ s  p −r⭢ q : {𝑙𝑖 :𝐺𝑖 }𝑖 ∈𝐼 ⊛ s
+continue with local type 𝑇𝑖 . The local type p ↩→ q : {𝑙𝑖 :𝑇𝑖 }𝑖 ∈𝐼 is a routing communication. The router role orchestrates the communication from p to q, and continues with local type 𝑇𝑖 depending on the label of the forwarded message. We keep track of the router role to distinguish between rout- ing communications from normal selection and branching interactions.
+Endpoint Projection. The local type 𝑇 of a participant p in a global type 𝐺 is obtained by the endpoint projection of 𝐺 onto p, denoted by 𝐺 as 𝐺 ↾ p.
+Definition 4.3 (Projection). The projection of 𝐺 onto r, written 𝐺 ↾ r is defined as:
+For direct communication, s must be a participant and a centroid of all continuations. For routed communication, s must be the router and be a centroid of all continuations. Now we define of well-formedness of a global type 𝐺 in RouST with respect to the router s (denoted wellFormed𝑅 (𝐺, s)): wellFormed𝑅 (𝐺, s) def (∀p ∈ pt (𝐺). 𝐺 ↾ p exists) ∧ 𝐺 ⊛ s
+4.2	Semantics of RouST
+This subsection defines the labelled transition system (LTS) over global types for RouST, building upon [11].
+First, we define the labels (actions) in the LTS which dis- tinguish the direct sending (and reception) of a message from
+the sending (and reception) of a message via an intermediate
+(p −s⭢ q : {𝑙𝑖 :𝐺𝑖 }𝑖 ∈𝐼 ) ↾ r
+q ⊕ ⟨s⟩ {𝑙𝑖 :𝐺𝑖 ↾ r}𝑖 ∈𝐼	if r = p
+(𝜇t.𝐺) ↾ r
+(𝜇t.(𝐺 ↾ r)  if 𝐺 ↾ r ≠ t′
+routing endpoint. Labels range over 𝑙, 𝑙 ′, · · · are defined by:
+𝑙 ::= pq!𝑗 | pq?𝑗 | via⟨s⟩(pq!𝑗) | via⟨s⟩(pq?𝑗)
+p &⟨s⟩ 𝑙 :𝐺 ↾ r	if r = q
+=	end	otherwise
+↩→	{ 𝑖	𝑖
+
+}𝑖 ∈𝐼
+end↾ r  =  end
+by p) of a message labelled 𝑗 to q through the intermediate
+⊓𝑖 ∈𝐼 𝐺𝑖 ↾ r	otherwise	t↾ r  =	t
+router s. The label via⟨s⟩(pq?𝑗) represents the reception
+The projection (p → q : {𝑙𝑖 :𝐺𝑖 )}𝑖 ∈𝐼 ↾ r is defined similar to (p −s⭢ q : {𝑙𝑖 :𝐺𝑖 }𝑖 ∈𝐼 ) ↾ r dropping s (in the resulting local type) and the third case.
+A merge operator (⊓) is used when projecting a communi- cation onto a non-participant. It checks that the projections of all continuations must be “compatible” (see Definition B.2).
+
+Example 4.4 (Merging Local Types). Two branching types from the same role with disjoint labels can merged into a type carrying both labels, e.g. A & 𝐻𝑒𝑙𝑙𝑜 .end ⊓ A & 𝐵𝑦𝑒.end =
+A & {𝐻𝑒𝑙𝑙𝑜 : end; 𝐵𝑦𝑒 : end}. The same is not true for selec-
+(initiated by q) of a message labelled 𝑗 send from p through the intermediate router s. The subject of a label 𝑙 , denoted by subj(𝑙), is defined as: subj(via⟨s⟩(pq!𝑗)) = subj(pq!𝑗) = p; and subj(via⟨s⟩(pq?𝑗)) = subj(pq?𝑗) = q.
+LTS Semantics over Global Types. The LTS semantics model asynchronous communication to reflect our imple- mentation. We introduce intermediate states (i.e. messages
+in transit) within the grammar of global types: the con- struct p ⇝ q. 𝑗 : {𝑙𝑖 :𝐺𝑖 }𝑖 ∈𝐼 represents that the message 𝑙 𝑗 has been sent by p but not yet received by q; and the con-
+struct p ⇝ q. 𝑗 : {𝑙𝑖 :𝐺𝑖 }𝑖 ∈𝐼 represents that 𝑙 𝑗 has been sent
+tions, A ⊕ 𝐻𝑒𝑙𝑙𝑜 .end ⊓ A ⊕ 𝐵𝑦𝑒.end is undefined.
+from p
+s
+to the router s but not yet routed to q. We define the
+𝐺1 =
+A → B : 𝐺𝑟𝑒𝑒𝑡 : A → C : 𝐻𝑒𝑙𝑙𝑜 . end
+LTS semantics over global types, denoted by 𝐺  𝑙	𝐺 ′, in
+𝐹𝑎𝑟𝑒𝑤𝑒𝑙𝑙 : A → C : 𝐵𝑦𝑒 . end
+𝐺𝑟𝑒𝑒𝑡 : C → A : 𝐻𝑒𝑙𝑙𝑜 . end
+𝐹𝑎𝑟𝑒𝑤𝑒𝑙𝑙 : C → A : 𝐵𝑦𝑒 . end
+Fig. 7. [Gr1] and [Gr2] model the emission and reception of a message; [Gr3] models recursions; [Gr4] and [Gr5] model causally unrelated transmissions — we only enforce
+The global type 𝐺1 can be projected to role C, but not 𝐺2.	the syntactic order of messages for the participants involved
+ 
+
+in the action 𝑙 . [Gr6] and [Gr7] are analogous to [Gr1] and [Gr2] for describing routed communication, but uses the “routed in-transit” construct instead. [Gr8] and [Gr9] are analogous to [Gr4] and [Gr5]. An important observation from [Gr8] and [Gr9] is that, for the router, the syntactic
+wellFormed𝑅 (𝐺, s). Then we have:
+4.3	From Canonical MPST to RouST
+order of routed communication can be freely interleaved between the syntactic order of direct communication. This is crucial to ensure that the router does not over-serialise communication. See Example 4.13 for an LTS example.
+Relating Semantics of Global and Local Types. We prove the soundness and completeness of our LTS semantics with respect to projection. We take three steps following [11]:
+1.	We extend the LTS semantics with configuration (𝑇→, 𝑤→ ), a collection of local types 𝑇→ with FIFO queues between each pair of participants 𝑤→ .
+2.	We extend the definition of projection, to obtain a config- uration of a global type (a projected configuration), which expresses intermediate communication over FIFO queues.
+3.	We prove the trace equivalence between the global type and its projected configuration (i.e. the initial configura- tion of 𝐺, (𝑇→, 𝜖→), where 𝑇→ = {𝐺 ↾ p}p∈P are a set of local
+types projected from 𝐺 and 𝜖 is an empty queue).
+The proof is non-trivial: due to space limitations, we omit the semantics of local types, configurations and global con-
+We present an encoding from the canonical MPST theory (no routers) to RouST. This encoding is parameterised by the router role (conventionally denoted as s); the intuition is that we encode all communication interactions to involve
+s. If the encoding preserves the semantics of the canonical global type, then this encoding can guide a correct protocol implementation in Node.js via s, preserving communication structures of the original protocol without deadlock.
+Router-Parameterised Encoding. We define the router- parameterised encoding on global types, local types and LTS labels in the MPST theory. We start with global types, as presented in Definition 4.8. The main rule is the direct communication: if the communication did not go through s, then the encoded communication involves s as the router.
+Definition 4.8 (Encoding on Global Types). The encoding of global type 𝐺 with respect to the router role s, denoted by J𝐺, s), is defined as:
+Jend, s) = end Jt, s) = t J𝜇t.𝐺, s) = 𝜇t.J𝐺, s)
+(p → q : 𝑙𝑖 : J𝐺𝑖 , s) 𝑖 ∈𝐼	if s ∈ {p, q}
+figurations, and only state the main result (see Appendices B and C).
+𝑖	𝑖 𝑖 ∈𝐼
+p −s⭢ q : 𝑙𝑖 : J𝐺𝑖 , s) 
+otherwise
+Theorem 4.6 (Sound and Complete Trace Equivalence). Let
+𝐺 be a well-formed canonical global type. Then 𝐺 is trace equivalent to its initial configuration.
+Theorem 4.7 proves traces specified by a well-formed global protocol are deadlock-free, i.e. the global type either completes all communications, or otherwise makes progress.
+Local types express communication from the perspective of a particular role, hence the encoding takes two roles.
+Definition 4.9 (Encoding on Local Types). The encoding of local type 𝑇 (from the perspective of role q) with respect to the router role s, denoted by J𝑇 , q, s), is defined as:
+Jend, q, s) = end Jt, q, s) = t J𝜇t.𝑇 , q, s) = 𝜇t.J𝑇 , q, s)
+Note that this theorem implies the deadlock-freedom of con-
+
+p	:	q s
+(p ⊕ 𝑙𝑖 : J𝑇𝑖 , q, s) 
+if s ∈ {p, q}
+Theorem 4.7 (Deadlock Freedom). Let 𝐺 be a global type.
+ 
+
+Jp & {𝑙𝑖 :𝑇𝑖 }
+, q, s) = (p & 𝑙𝑖 : J𝑇𝑖 , q, s) 𝑖 ∈𝐼	if s ∈ {p, q}
+ 
+
+Lemma 4.10 (Correspondence between Encodings). The projection of an encoded global type J𝐺, s) ↾ r is equal to the encoded local type after projection J𝐺 ↾ r, r, s), with respect to router s, i.e. ∀r, s, 𝐺 . r ≠ s =→ J𝐺, s) ↾ r = J𝐺 ↾ r, r, s) .
+The constraint r ≠ s is necessary because we would other- wise lose information on the right-hand side of the equality: the projection of s in the original communication does not contain the routed interactions, so applying the local type encoding cannot recover this information.
+Theorem 4.11 (Encoding Preserves Well-Formedness). Let
+𝐺 be a global type, and s be a role. Then we have:
+wellFormed (𝐺) →→ wellFormed𝑅 J𝐺, s), s
+Preserving Communication. We present a crucial re- sult that directly addresses the pitfalls of naive definitions of routed communication — our encoding does not over- serialise the original communication. We prove that our encoding preserves the LTS semantics over global types — or more precisely, we can use the encodings over global types and LTS actions to encode all possible transitions in the LTS for global types in the canonical MPST theory. We define the encoding of label 𝑙 in the original MPST as:
+Jpq!𝑗, s) = via⟨s⟩(pq!𝑗) and Jpq?𝑗, s) = via⟨s⟩(pq?𝑗) if
+s ∉ {p, q} and otherwise J𝑙, s) = 𝑙 .
+Theorem 4.12 (Encoding Preserves Semantics). Let 𝐺, 𝐺 ′
+be well-formed global types such that 𝐺  𝑙	𝐺 ′ for some label
+𝑙 . Then we have:
+5	Evaluation
+In this section, we demonstrate the expressiveness and ap- plicability of STScript for modern web programming, and report on performance. We walk through how to implement Noughts and Crosses game with our toolchain, showing how the generated APIs prevent common errors. We choose this game since we can demonstrate the main features of STScript within the limited space. We also remark on performance implications of our toolchain. In Appendix D, we include larger cases studies: Battleship, a game with more complex program logic; and Travel Agency (Fig. 1), as shown in  1.
+Noughts and Crosses. We present the classic two-player turn-based game of Noughts and Crosses here. We formalise the game interactions using a Scribble protocol: both players, identified by noughts (O’s) or crosses (X’s), take turns to place a mark on an unoccupied cell of a grid, until a player wins (when their markers form a straight line) or a stalemate is reached (when all cells are occupied and no one wins).
+1  // `Pt` stands for the position on the board
+2  global protocol Game(role Svr, role P1, role P2) {
+3	Pos(Pt) from P1 to Svr;
+4	choice at Svr
+5	{ Lose(Pt) from Svr to P2; Win(Pt) from Svr to P1; }
+6  or { Draw(Pt) from Svr to P2; Draw(Pt) from Svr to P1; }
+7  or { Update(Pt) from Svr to P2; Update(Pt) from Svr to P1;
+8	do Game(Svr, P2, P1); }} // Players swap turns
+Game Server. We set up the game server as an Express.js application on top of the Node.js runtime. We define our own game logic in a Board class to keep track of the game
+∀𝑙, s. 𝐺  𝑙
+𝐺 ′ →→ J𝐺, s
+J𝑙, s)
+𝐺 ′, s) 
+state and expose methods to query the result. When the
+
+We conclude with an example which demonstrates global semantics in RouST and a use of the encoding.
+Example 4.13 (Encoding Preserves Semantics). Consider the global type
+𝐺 = p → q : 𝑀1 . s → q : 𝑀2 . end.
+We apply our encoding with respect to the router role s:
+J𝐺, s) = p −s⭢ q : 𝑀1 . s → q : 𝑀2 . end.
+We note that 𝑙 = sq!𝑀2 can reduce 𝐺 through [Gr1] (via one application of [Gr4]). After encoding, we have that J𝑙, s) = 𝑙 . The encoded global type J𝐺, s) can be reduced by 𝑙 through
+[Gr1] (via one application of [Gr8]), as demonstrated by Theorem 4.12. The label 𝑙 = sq!𝑀2 is a prefix of a valid execution trace for 𝐺, given below.
+the game state asynchronously and return the game result caused by that move. The expressiveness of STScript enable the developer to define the handlers as async functions to use the game logic API correctly – this is prevalent in modern web programming, but not directly addressed in [13, 20].
+The generated session runtime for Node.js is given as:
+1  const gameManager = (gameID: string) => {
+2	const handleP1Move = Session.Initial({
+3	Pos: async (Next, move: Point) => {
+4	// Update current game with new move, return result
+5	switch (await DB.attack(gameID, 'P1', move)) {
+6	case MoveResult.Win:
+7	// Send losing result to P2, winning result to P1
+8	return Next.Lose([move], Next => (
+9	Next.Win([move], Session.Terminal))));
+10	case MoveResult.Draw: ...
+11	case MoveResult.Continue:
+sq!𝑀 2
+𝐺 −−−−−−−−→
+pq!𝑀 1
+−−−−−−−−→
+pq?𝑀 1
+−−−−−−−−→
+sq?𝑀 2
+−−−−−−−−→ end
+12	// Notify both players and proceed to P2's turn
+13	return Next.Update([move], Next => (
+Interested readers can verify that the encoded trace (given below) is a valid execution trace for J𝐺, s).
+14	Next.Update([move], handleP2Move)) }}});
+15	const handleP2Move = ... // defined similarly
+16	return handleP1Move; }
+sq!𝑀 2
+J𝐺, s) −−−−−−−−→
+via⟨s⟩(pq!𝑀 1)
+−−−−−−−−−−→
+via⟨s⟩(pq?𝑀 1)
+−−−−−−−−−−→
+sq?𝑀 2
+−−−−−−−−→ end
+17  // Initialise game server
+18  new Svr(wss, handleCancellation, gameManager);
+The runtime is initialised by a function parameterised by the session ID and returns the initial state. The developer can use the session ID as an identifier to keep track of concurrent sessions and update the board of the corresponding game.
+Game Players. On the browser side, the main implemen- tation detail for game players is to make moves. Intuitively, the developer implements a grid and binds a mouse click handler for each vacant cell to send its coordinates in a Pos(Point) message to the game server. Without STScript, developers need to synchronise the UI with the progression of protocol manually — for instance, they need to guarantee that the game board is inactive after the player makes a move, and manual efforts are error-prone and unscalable.
+The generated APIs from STScript make this intuitive, and guarantees communication safety in the meantime. By pro- viding React component factories for send states, the APIs let the developer trigger the same send action on multiple UI events with possibly different payloads. In Noughts and Crosses, for each vacant cell on the game board, we create
+a <SelectCell> React component from the component fac- tory function (Line 6). The factory builds a component that sends the Pos message with x-y coordinate as payload when the user clicks on it. We bind the onClick event to the table cell by wrapping it with the <SelectCell> component.
+1  {board.map((row, x) => (<tr>
+2  {row.map((cell, y) => {
+3	const tableCell = <td>{cell}</td>;
+4	if (cell === Cells.VACANT) {
+5	const makeMove = (ev: React.MouseEvent) => ({ x, y });
+6	const SelectCell = this.props.Pos('onClick', makeMove);
+7	return <SelectCell>{tableCell}</SelectCell>; }
+8	else { return tableCell; }})} </tr>)}
+The session cancellation handler allows the developer to render useful messages to the player by making application- specific interpretations of the cancellation event. For example, if the opponent disconnects, the event can be interpreted as a forfeiture and a winning message can be rendered.
+Performance. To measure the performance impact of gen- erated APIs (which handle the communication for develop- ers), in contrast to a typical developer implementation with- out the APIs (interacting directly with WebSocket primitives), we compare the execution time of web-based implementa- tions of the Ping Pong protocol (shown below) with (denoted mpst) and without (denoted bare) generated APIs.
+1  global protocol PingPong(role C, role S)
+2  { PING(int) from C to S;
+3	choice at S { PONG(int) from S to C; do PingPong(C, S); }
+4	or { BYE() from S to C; }} // n round trips completed
+We parameterise an experiment run of the protocol by the number of round-trip messages 𝑛, fixated in the application logic across experiments. Upon establishing a connection,
+Table 1. Comparison of Message Processing Time for 100 and 1000 Ping-Pongs
+
+𝑛	Msg. Proc. Time (ms)
+	Node.js	React.js
+	bare	mpst	bare	mpst
+102
+103	0.194
+0.154	0.201
+0.157	0.499
+0.465	0.961
+0.766
+
+both endpoints repeatedly exchange 𝑛 messages of increas- ing integer values. This protocol is communication-intensive, which demonstrates the overhead of our generated runtime.
+Setup. To measure the overhead as accurately as possible, we specify that the implementations must follow:
+•	Clients implement the same user interface, rendering a
+<button> which triggers the send, and a <div> captioned with the number of PONGs received.
+•	Clients use React Context API for application state man-
+agement, keeping track of the number of PONGs received.
+•	Both endpoints use the built-in console.time method to record the execution time. The timer starts on a WebSocket OpenEvent and stops on a CloseEvent.
+•	To observe the execution pattern, both endpoints log the
+running elapsed time on every message receive event, and measure the time taken to receive a message and perform the successor IO action.
+•	We use the compiled JavaScript production build for both
+Client and Server implementations.
+We run the experiments under a network of latency 0.165ms (64 bytes ping), and repeat each experiment 20 times. Execu- tion time measurements are taken using a machine equipped with Intel i7-4850HQ CPU (2.3 GHz, 4 cores, 8 threads), 16 GB RAM, macOS operating system version 10.15.4, Node.js runtime version 12.12.0, and TypeScript compiler version
+3.7.4. We standardise all packages used in the front- and back-end implementations across experiments.
+Benchmarks. A run begins with C connecting to S and completes after the specified number of round trips. Each round trip requires both endpoints to process the incoming message and perform the successor send action – we refer to this as the message processing time (Msg. Proc. Time). We compare the time for each endpoint ( average of 20 runs) across both implementations, for 𝑛 ∈ {102, 103 } round trips. We make two key observations from Table 1: (1) the round trip time is dominated by the browser-side, and (2) mpst in- troduces overhead dominated by the React.js session runtime.
+Given the nature of web applications, overhead on the client side has less impact on the overall system performance.
+The overhead in mpst arises from increased state modifi- cations by C, since component state is updated both when EFSM state transitions and when the Pong message count changes. The React.js session runtime for mpst re-renders
+Table 2. Comparison of React.js Message Processing Time for Ping Pong with (and without) UI requirements
+
+𝑛	Msg. Proc. Time on React.js (ms)
+	bare	mpst
+	w/o req.	w/ req.	w/o req.	w/ req.
+102
+103	0.499
+0.465	0.638
+0.577	0.961
+0.766	0.930
+0.826
+on each state transition, even if there are no UI changes; these additional state changes are not incurred by bare.
+We validate our hypothesis by running the Ping Pong micro-benchmark with UI requirements — we summarise the results in Table 2. By requiring additional text to be shown on send and terminal states, we observe a noticeable increase in the message processing time for bare, whereas relatively insignificant changes on mpst. The UI requirements demand bare to perform additional state updates and re-rendering, reducing the overhead relative to mpst.
+Scalability. As the generated APIs abstract away the de- tails of the actual destination of a message, the effect of scaling the number of roles in a protocol is transparent to the developer. The number of states and transitions in the EFSM increases as the complexity of the protocol scales. The generated React.js runtime re-renders the UI on every state transition, so more complex protocols would trigger more re-renders, incurring performance penalties. However, this is less of a concern for STScript, as user-facing application protocols in interactive web settings tend not to be large in size (cf. distributed algorithms in large scale systems).
+6	Related and Future Work
+There are a vast number of studies on theories of session types [19], some of which are integrated in programming lan- guages [1], or implemented as tools [32]. Here we focus on the most closely related work: (1) code generation from ses- sion types; (2) web applications based on session types; and
+(3) encoding multiparty sessions into binary connections.
+Code Generation from Session Types. In general, a code generation toolchain takes a protocol (session type) descrip- tion (in a domain specific language) and produces well-typed APIs conforming to the protocol. The Scribble [31, 34] lan- guage is widely used to describe multiparty protocols, agnos- tic to target languages. The Scribble toolchain implements the projection of global protocols, and the construction of endpoint finite state machines (EFSM). Many implementa- tions use an EFSM-based approach to generate APIs for target programming languages, e.g. Java [17], Go [7], and F# [25], for distributed applications. Our work also falls into this cat- egory, where we generate correct-by-construction TypeScript APIs, but focusing on interactive web applications. Follow- ing [35], we generate callback-style APIs, adapted to fit the event-driven paradigm in web programming.
+Alternatively, Demangeon et al. [10] propose MPST-based runtime monitors to dynamically verify protocol conformance, also available from code generation. Whilst a runtime ap- proach is viable for JavaScript applications, our method, which leverages the TypeScript type system to statically provide communication safety to developers, gives a more rigorous guarantee. Ng et al. [26] propose a different kind of MPST-based code generation, where sequential C code can be parallelised according to a global protocol using MPI.
+Session-Typed Web Development. Fowler [13] integrates binary session types into web application development. Our work encodes multiparty session types for web applications, subsuming binary sessions. King et al. [20] extend the Scrib- ble toolchain for web applications targeting PureScript [28], a functional web programming language. In their work, a client may only communicate with one designated server role, whereas our work addresses this limitation via routing through a designated role. Jolie [24, 33] is a programming language designed for web services, capable of expressing multiparty sessions. Jolie extends the concept of choreogra- phy programming [5], where a choreography contains be- haviour of all participants, and endpoints are derived directly from projections. Our work implements each endpoint sep- arately. Moreover, we generate server and client endpoints using different styles to better fit their use case. Note that Links [8], PureScript [28] and Jolie [33] are not usually con- sidered mainstream in modern web programming, whereas our tool targets popular web programming technologies.
+Encoding of Multiparty Session Types. RouST models an “orchestrating” role (the router) for forwarding messages between roles, and this information is used to directly guide STScript to correctly implement the protocol in Node.js. The use of a medium process to encode multiparty into binary session types has been studied in theoretical settings, in particular, linear logic based session types [3, 4, 6]. In their setting, one medium process is used for orchestrating the multiparty communications between all roles in binary ses- sion types.Our encoding models the nature of web applica- tions running over WebSockets, where browser clients can only directly connect to a server, not other clients.
+Scalas et al. [29] show a different encoding of multiparty session types into linear 𝜋-calculus, which decomposes a multiparty session into binary channels without a medium process. This encoding is used to implement MPST with binary session types in Scala. Their approach uses session delegation, i.e. passing channels, which is difficult to imple- ment with WebSockets. Our RouST focuses on modelling the
+routing mechanism at the global types level, so that our en- coding can directly guide correct practical implementations.
+Conclusion and Future Work. We explore the applica- tion of session types to modern interactive web program- ming, using code generation for communication-safe APIs
+from multiparty protocol specifications. We incorporate rout- ing semantics to seamlessly adapt MPST to address the prac- tical challenges of using WebSocket protocols. Our approach integrates with popular industrial frameworks, and is backed by our theory of RouST, guaranteeing communication safety. For future work, we would like to extend (1) STScript with additional practical extensions of MPST, e.g. explicit connec- tions [18], (2) our code generation approach to implement
+typestates in TypeScript, inspired by [21].
+
+Acknowledgments
+We thank the CC reviewers for their comments and sug- gestions. We thank Neil Sayers for testing the artifact. The work is supported by EPSRC EP/T006544/1, EP/K011715/1, EP/K034413/1, EP/L00058X/1, EP/N027833/1, EP/N028201/1, EP/T014709/1 and EP/V000462/1, and NCSS/EPSRC VeTSS.
+
+References
+[1]	Davide Ancona, Viviana Bono, Mario Bravetti, Joana Campos, Giuseppe Castagna, Pierre-Malo Deniélou, Simon J. Gay, Nils Gesbert, Elena Giachino, Raymond Hu, Einar Broch Johnsen, Francisco Mar- tins, Viviana Mascardi, Fabrizio Montesi, Rumyana Neykova, Nicholas Ng, Luca Padovani, Vasco T. Vasconcelos, and Nobuko Yoshida. 2016. Behavioral Types in Programming Languages. Found. Trends Program.
+Lang. 3, 2–3 (July 2016), 95–230. hNps://doi.org/10.1561/2500000031
+[2]	Gavin Bierman, Martín Abadi, and Mads Torgersen. 2014. Under- standing TypeScript. In ECOOP 2014 – Object-Oriented Programming, Richard Jones (Ed.). Springer Berlin Heidelberg, Berlin, Heidelberg, 257–281.
+[3]	Luís Caires and Jorge A. Pérez. 2016. Multiparty Session Types Within a Canonical Binary Theory, and Beyond. In Formal Techniques for Distributed Objects, Components, and Systems, Elvira Albert and Ivan Lanese (Eds.). Springer International Publishing, Cham, 74–95.
+[4]	Marco Carbone, Sam Lindley, Fabrizio Montesi, Carsten Sc huermann, and Philip Wadler. 2016. Coherence Generalises Duality: a logical explanation of multipart y session types. In CONCUR’16 (Leibniz Inter- national Proceedings in Informatics (LIPIcs), Vol. 59). Schloss Dagstuhl, 33:1–33:15.
+[5]		Marco Carbone and Fabrizio Montesi. 2013. Deadlock-Freedom-by- Design: Multiparty Asynchronous Global Programming. In Proceedings of the 40th Annual ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages (Rome, Italy) (POPL ’13). Association for Computing Machinery, New York, NY, USA, 263–274. hNps://doi.org/ 10.1145/2429069.2429101
+[6]		Marco Carbone, Fabrizio Montesi, Carsten Schormann, and Nobuko Yoshida. 2015. Multiparty Session Types as Coherence Proofs. In CONCUR 2015 (LIPIcs, Vol. 42). Schloss Dagstuhl, 412–426.
+[7]	David Castro, Raymond Hu, Sung-Shik Jongmans, Nicholas Ng, and Nobuko Yoshida. 2019. Distributed Programming Using Role- parametric Session Types in Go: Statically-typed Endpoint APIs for Dynamically-instantiated Communication Structures. Proc. ACM Program. Lang. 3, POPL, Article 29 (Jan. 2019), 30 pages. hNps:
+//doi.org/10.1145/3290342
+[8]	Ezra Cooper, Sam Lindley, Philip Wadler, and Jeremy Yallop. 2007. Links: Web Programming Without Tiers. In Formal Methods for Com- ponents and Objects, Frank S. de Boer, Marcello M. Bonsangue, Susanne Graf, and Willem-Paul de Roever (Eds.). Springer Berlin Heidelberg, Berlin, Heidelberg, 266–296.
+[9]	Mario Coppo, Mariangiola Dezani-Ciancaglini, Nobuko Yoshida, and Luca Padovani. 2016. Global progress for dynamically interleaved
+
+multiparty sessions. MSCS 26, 2 (2016), 238–302. hNps://doi.org/10. 1017/S0960129514000188
+[10]	Romain Demangeon, Kohei Honda, Raymond Hu, Rumyana Neykova, and Nobuko Yoshida. 2015. Practical interruptible conversations: distributed dynamic verification with multiparty session types and Python. Formal Methods in System Design 46, 3 (Jun 2015), 197–225.
+hNps://doi.org/10.1007/s10703-014-0218-8
+[11]	Pierre-Malo Deniélou and Nobuko Yoshida. 2013. Multiparty Compati- bility in Communicating Automata: Characterisation and Synthesis of Global Session Types. In 40th International Colloquium on Automata, Languages and Programming (LNCS, Vol. 7966). Springer, 174–186. a full version: hNp://arxiv.org/abs/1304.1902.
+[12]	Ian Fette and Alexey Melnikov. 2011. The WebSocket Protocol. RFC 6455. RFC Editor. 1–71 pages. hNps://www.rfc-editor.org/info/rfc6455
+[13]		Simon Fowler. 2020. Model-View-Update-Communicate: Session Types Meet the Elm Architecture. In 34th European Conference on Object- Oriented Programming (ECOOP 2020) (Leibniz International Proceedings in Informatics (LIPIcs), Vol. 166), Robert Hirschfeld and Tobias Pape (Eds.). Schloss Dagstuhl–Leibniz-Zentrum für Informatik, Dagstuhl,
+Germany, 14:1–14:28. hNps://doi.org/10.4230/LIPIcs.ECOOP.2020.14
+[14]		Kohei Honda, Vasco T. Vasconcelos, and Makoto Kubo. 1998. Language primitives and type discipline for structured communication-based programming. In Programming Languages and Systems, Chris Hankin (Ed.). Springer Berlin Heidelberg, Berlin, Heidelberg, 122–138.
+[15]		Kohei Honda, Nobuko Yoshida, and Marco Carbone. 2016. Multiparty Asynchronous Session Types. J. ACM 63 (2016), 1–67. Issue 1-9. hNps://doi.org/10.1145/2827695
+[16]		Raymond Hu. 2017. Distributed Programming Using Java APIs Gen- erated from Session Types. Behavioural Types: from Theory to Tools (2017), 287–308.
+[17]	Raymond Hu and Nobuko Yoshida. 2016. Hybrid Session Verification through Endpoint API Generation. In 19th International Conference on Fundamental Approaches to Software Engineering (LNCS, Vol. 9633). Springer, Berlin, Heidelberg, 401–418. hNps://doi.org/10.1007/978-3- 662-49665-7_24
+[18]	Raymond Hu and Nobuko Yoshida. 2017. Explicit Connection Actions in Multiparty Session Types. In Fundamental Approaches to Software Engineering, Marieke Huisman and Julia Rubin (Eds.). Springer Berlin Heidelberg, Berlin, Heidelberg, 116–133.
+[19]		Hans Hüttel, Ivan Lanese, Vasco T. Vasconcelos, Luís Caires, Marco Carbone, Pierre-Malo Deniélou, Dimitris Mostrous, Luca Padovani, António Ravara, Emilio Tuosto, Hugo Torres Vieira, and Gianluigi Zavattaro. 2016. Foundations of Session Types and Behavioural Con- tracts. ACM Comput. Surv. 49, 1, Article 3 (2016). hNps://doi.org/10. 1145/2873052
+[20]	Jonathan King, Nicholas Ng, and Nobuko Yoshida. 2019. Multiparty Session Type-safe Web Development with Static Linearity. In Pro- ceedings Programming Language Approaches to Concurrency- and Communication-cEntric Software, Prague, Czech Republic, 7th April 2019 (Electronic Proceedings in Theoretical Computer Science, Vol. 291), Francisco Martins and Dominic Orchard (Eds.). Open Publishing Asso- ciation, 35–46. hNps://doi.org/10.4204/EPTCS.291.4
+[21]		Dimitrios Kouzapas, Ornela Dardha, Roly Perera, and Simon J. Gay. 2016. Typechecking Protocols with Mungo and StMungo. In Proceed- ings of the 18th International Symposium on Principles and Practice of Declarative Programming (Edinburgh, United Kingdom) (PPDP ’16). Association for Computing Machinery, New York, NY, USA, 146–159. hNps://doi.org/10.1145/2967973.2968595
+[22]	Material-UI. 2020. Material-UI: A popular React UI framework. hNps:
+//material-ui.com/. Accessed on 26th August 2020.
+[23]	Anson Miu, Francisco Ferreira, Nobuko Yoshida, and Fangyi Zhou. 2021. Communication-Safe Web Programming in TypeScript with Routed Multiparty Session Types. hNps://doi.org/10.5281/zenodo.4399900
+
+[24]		Fabrizio Montesi. 2016. Process-aware web programming with Jolie. Science of Computer Programming 130 (2016), 69 – 96. hNps://doi.org/ 10.1016/j.scico.2016.05.002
+[25]		Rumyana Neykova, Raymond Hu, Nobuko Yoshida, and Fahd Ab- deljallal. 2018. A Session Type Provider: Compile-time API Gener- ation of Distributed Protocols with Refinements in F#. In Proceed- ings of the 27th International Conference on Compiler Construction (Vienna, Austria) (CC 2018). ACM, New York, NY, USA, 128–138. hNps://doi.org/10.1145/3178372.3179495
+[26]	Nicholas Ng, Jose G.F. Coutinho, and Nobuko Yoshida. 2015. Protocols by Default: Safe MPI Code Generation based on Session Types. In CC 2015 (LNCS, Vol. 9031). Springer, 212–232.
+[27]		Benjamin C. Pierce. 2002. Types and Programming Languages (1st ed.). The MIT Press.
+[28]		PureScript. 2020. purescript/purescript. PureScript. Accessed on 10th August 2020.
+[29]	Alceste Scalas, Ornela Dardha, Raymond Hu, and Nobuko Yoshida. 2017. A Linear Decomposition of Multiparty Sessions for Safe Dis- tributed Programming. In 31st European Conference on Object-Oriented Programming (ECOOP 2017) (Leibniz International Proceedings in Infor- matics (LIPIcs), Vol. 74), Peter Müller (Ed.). Schloss Dagstuhl–Leibniz- Zentrum fuer Informatik, Dagstuhl, Germany, 24:1–24:31. hNps:
+//doi.org/10.4230/LIPIcs.ECOOP.2017.24
+[30]	Alceste Scalas and Nobuko Yoshida. 2019. Less is More: Multiparty Session Types Revisited. Proc. ACM Program. Lang. 3, POPL, Article 30 (Jan. 2019), 29 pages. hNps://doi.org/10.1145/3290343
+[31]	Scribble Authors. 2015. Scribble: Describing Multi Party Protocols.
+hNp://www.scribble.org/.
+[32]	António Ravara Simon Gay (Ed.). 2017. Behavioural Types: from Theory to Tools. River Publisher. hNps://www.riverpublishers.com/research_ details.php?book_id=439
+[33]	The Jolie Team. 2020. Jolie Programming Language – Official Website.
+hNps://jolie-lang.org/. Accessed on 11th November 2020.
+[34]		Nobuko Yoshida, Raymond Hu, Rumyana Neykova, and Nicholas Ng. 2014. The Scribble Protocol Language. In 8th International Sympo- sium on Trustworthy Global Computing - Volume 8358 (Buenos Aires, Argentina) (TGC 2013). Springer-Verlag, Berlin, Heidelberg, 22–41. hNps://doi.org/10.1007/978-3-319-05119-2_3
+[35]	Fangyi Zhou, Francisco Ferreira, Raymond Hu, Rumyana Neykova, and Nobuko Yoshida. 2020. Statically Verified Refinements for Multiparty Protocols. Proc. ACM Program. Lang. 4, OOPSLA, Article 148 (Nov. 2020), 30 pages. hNps://doi.org/10.1145/3428216
