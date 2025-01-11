@@ -1,4 +1,7 @@
 package zjb.jtdx.qx.mapper;
 
-public interface ClaMapper {
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import zjb.jtdx.qx.domain.Cla;
+
+public interface ClaMapper extends BaseMapper<Cla> {
 }

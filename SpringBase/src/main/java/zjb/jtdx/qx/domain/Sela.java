@@ -1,22 +1,31 @@
 package zjb.jtdx.qx.domain;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
+import lombok.NoArgsConstructor;
+
+/**
+ * 选课表
+ */
 @Data
-@Table(name = "sela", schema = "zjb_db")
+@AllArgsConstructor
+@NoArgsConstructor
+@TableName("sela")
 public class Sela {
-    @Id
-    @Column(value = "sela_id")
-    public Integer id;
+    @TableId(value = "sela_id", type = IdType.AUTO)
+    @JsonProperty("sela_id")
+    private Integer selaId;
 
-    @Column(value = "cla_id")
-    public Integer claId;
+    @TableField("cla_id")
+    @JsonProperty("cla_id")
+    private Integer claId;
 
-    @Column(value = "user_id")
-    public Integer userId;
-
-
-
+    @TableField("user_id")
+    @JsonProperty("user_id")
+    private Integer userId;
 }

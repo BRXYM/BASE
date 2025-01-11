@@ -1,26 +1,37 @@
 package zjb.jtdx.qx.domain;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
+/**
+ * 课程表
+ */
 @Data
-@Table(name = "cla", schema = "zjb_db")
+@AllArgsConstructor
+@NoArgsConstructor
+@TableName("cla")
 public class Cla {
-    @Id
-    @Column(value = "cla_id")
-    public Integer id;
+    @TableId(value = "cla_id", type = IdType.AUTO)
+    @JsonProperty("cla_id")
+    private Integer claId;
 
-    @Column(value = "cla_name")
-    public String claName;
+    @TableField("cla_name")
+    @JsonProperty("cla_name")
+    private String claName;
 
-    @Column(value = "teach_id")
-    public Integer teachId;
+    @TableField("teach_id")
+    @JsonProperty("teach_id")
+    private Integer teachId;
 
-    @Column(value = "cla_time")
-    public Instant claTime;
-
+    @TableField("cla_time")
+    @JsonProperty("cla_time")
+    private Instant claTime;
 }

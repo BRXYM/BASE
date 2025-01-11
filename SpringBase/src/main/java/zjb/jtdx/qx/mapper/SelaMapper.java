@@ -1,4 +1,7 @@
 package zjb.jtdx.qx.mapper;
 
-public interface SelaMapper {
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import zjb.jtdx.qx.domain.Sela;
+
+public interface SelaMapper extends BaseMapper<Sela> {
 }

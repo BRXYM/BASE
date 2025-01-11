@@ -1,29 +1,41 @@
 package zjb.jtdx.qx.domain;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+
+/**
+ * 订单表
+ */
 @Data
-@Table(name = "ord", schema = "zjb_db")
+@AllArgsConstructor
+@NoArgsConstructor
+@TableName("ord")
 public class Ord {
-    @Id
-    @Column(value = "ord_id")
-    public Integer id;
+    @TableId(value = "ord_id", type = IdType.AUTO)
+    @JsonProperty("ord_id")
+    private Integer ordId;
 
-    @Column(value = "good_id")
-    public Integer goodId;
+    @TableField("good_id")
+    @JsonProperty("good_id")
+    private Integer goodId;
 
-    @Column(value = "user_id")
-    public Integer userId;
+    @TableField("user_id")
+    @JsonProperty("user_id")
+    private Integer userId;
 
-    @Column(value = "ord_time")
-    public Instant ordTime;
+    @TableField("ord_time")
+    @JsonProperty("ord_time")
+    private Instant ordTime;
 
-    @Column(value = "ord_num")
-    public Integer ordNum;
-
-
+    @TableField("ord_num")
+    @JsonProperty("ord_num")
+    private Integer ordNum;
 }

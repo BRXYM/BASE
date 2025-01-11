@@ -1,24 +1,35 @@
 package zjb.jtdx.qx.domain;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
+import lombok.NoArgsConstructor;
+
+/**
+ * 教练表
+ */
 @Data
-@Table(name = "teach", schema = "zjb_db")
+@AllArgsConstructor
+@NoArgsConstructor
+@TableName("teach")
 public class Teach {
-    @Id
-    @Column(value = "teach_id")
-    public Integer id;
+    @TableId(value = "teach_id", type = IdType.AUTO)
+    @JsonProperty("teach_id")
+    private Integer teachId;
 
-    @Column(value = "teach_name")
-    public String teachName;
+    @TableField("teach_name")
+    @JsonProperty("teach_name")
+    private String teachName;
 
-    @Column(value = "teach_phone")
-    public String teachPhone;
+    @TableField("teach_phone")
+    @JsonProperty("teach_phone")
+    private String teachPhone;
 
-    @Column(value = "teach_pass")
-    public String teachPass;
-
-
+    @TableField("teach_pass")
+    @JsonProperty("teach_pass")
+    private String teachPass;
 }
