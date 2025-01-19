@@ -1,0 +1,172 @@
+理解了你的需求，你希望将 `information_schema` 中的数据按表的注释分组，并将每个表的列信息（列名和数据类型）聚合成一个JSON数组。由于不允许嵌套的聚合调用，我们需要重新设计查询以避免嵌套的聚合函数。
+
+### 解决方案
+我们可以先按表名分组，将每个表的列信息聚合成一个JSON数组，然后再将这些结果聚合成一个最终的JSON对象。具体步骤如下：
+
+1. **第一步**: 按表名分组，将每个表的列信息聚合成一个JSON数组。
+2. **第二步**: 将第一步的结果按表注释分组，生成最终的JSON对象。
+
+### 第一步：按表名分组
+首先，我们按表名分组，将每个表的列信息聚合成一个JSON数组。
+
+```sql
+SELECT 
+    t.TABLE_NAME,
+    JSON_ARRAYAGG(
+        JSON_OBJECT(
+            'column_name', c.COLUMN_NAME,
+            'data_type', c.DATA_TYPE
+        )
+    ) AS columns_info
+FROM 
+    information_schema.tables t
+JOIN 
+    information_schema.columns c
+ON 
+    t.TABLE_NAME = c.TABLE_NAME
+WHERE 
+    t.TABLE_SCHEMA = 'classroom_db'
+    AND c.TABLE_SCHEMA = 'classroom_db'
+GROUP BY 
+    t.TABLE_NAME;
+```
+
+### 第二步：按表注释分组
+接下来，我们将第一步的结果按表注释分组，生成最终的JSON对象。
+
+```sql
+WITH table_columns AS (
+    SELECT 
+        t.TABLE_NAME,
+        t.TABLE_COMMENT,
+        JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'column_name', c.COLUMN_NAME,
+                'data_type', c.DATA_TYPE
+            )
+        ) AS columns_info
+    FROM 
+        information_schema.tables t
+    JOIN 
+        information_schema.columns c
+    ON 
+        t.TABLE_NAME = c.TABLE_NAME
+    WHERE 
+        t.TABLE_SCHEMA = 'classroom_db'
+        AND c.TABLE_SCHEMA = 'classroom_db'
+    GROUP BY 
+        t.TABLE_NAME, t.TABLE_COMMENT
+)
+SELECT 
+    JSON_OBJECTAGG(
+        CONCAT('table_comment:', TABLE_COMMENT),
+        columns_info
+    ) AS json_result
+FROM 
+    table_columns;
+```
+
+### 解释
+1. **CTE (Common Table Expression)**:
+   - `WITH table_columns AS (...)` 创建一个临时结果集 `table_columns`，其中包含每个表的列信息。
+   - `JSON_ARRAYAGG` 函数将每个表的列信息聚合成一个JSON数组。
+
+2. **最终查询**:
+   - 使用 `JSON_OBJECTAGG` 函数将 `table_columns` 中的结果按表注释分组，生成最终的JSON对象。
+   - `CONCAT('table_comment:', TABLE_COMMENT)` 作为键，`columns_info` 作为值。
+
+### 示例结果
+假设 `classroom_db` 数据库中有两个表 `students` 和 `courses`，其注释分别为 `Student Information` 和 `Course Information`，查询结果可能如下：
+
+```json
+{
+    "table_comment:Student Information": [
+        {"column_name": "id", "data_type": "int"},
+        {"column_name": "name", "data_type": "varchar"},
+        {"column_name": "age", "data_type": "int"}
+    ],
+    "table_comment:Course Information": [
+        {"column_name": "id", "data_type": "int"},
+        {"column_name": "title", "data_type": "varchar"},
+        {"column_name": "credits", "data_type": "int"}
+    ]
+}
+```
+
+### 在TypeScript或Vue项目中的应用
+假设你从后端API获取了上述查询结果，并希望在Vue组件中显示这些数据。以下是一个简单的示例。
+
+#### Vue 组件示例
+```vue
+<template>
+  <div>
+    <h1>Database Schema</h1>
+    <div v-for="(columns, comment) in schema" :key="comment">
+      <h2>{{ comment }}</h2>
+      <ul>
+        <li v-for="column in columns" :key="column.column_name">
+          {{ column.column_name }}: {{ column.data_type }}
+        </li>
+      </ul>
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import { defineComponent, ref, onMounted } from 'vue';
+
+export default defineComponent({
+  name: 'DatabaseSchema',
+  setup() {
+    const schema = ref({});
+
+    const fetchSchema = async () => {
+      try {
+        const response = await fetch('/api/get-database-schema'); // 假设有一个API返回上述JSON数据
+        const data = await response.json();
+        schema.value = data.json_result;
+      } catch (error) {
+        console.error('Error fetching schema:', error);
+      }
+    };
+
+    onMounted(() => {
+      fetchSchema();
+    });
+
+    return {
+      schema,
+    };
+  },
+});
+</script>
+```
+
+#### TypeScript 处理示例
+如果你需要在TypeScript中处理这些数据，可以定义相应的接口来确保类型安全。
+
+```typescript
+interface Column {
+  column_name: string;
+  data_type: string;
+}
+
+interface Schema {
+  [key: string]: Column[];
+}
+
+async function fetchSchema(): Promise<Schema> {
+  const response = await fetch('/api/get-database-schema');
+  const data = await response.json();
+  return data.json_result;
+}
+
+fetchSchema().then(schema => {
+  console.log(schema);
+}).catch(error => {
+  console.error('Error fetching schema:', error);
+});
+```
+
+### 总结
+通过上述步骤和示例，你可以在Vue组件中动态地显示数据库表的结构信息，并且避免了嵌套的聚合调用。如果你有具体的代码示例或问题，请提供更多上下文，我可以给出更详细的建议。
