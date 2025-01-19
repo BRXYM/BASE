@@ -42,4 +42,10 @@ public class OrdController {
         System.out.println("收到获取订单的请求，订单ID: " + ordId);
         return ordService.getOrdById(ordId);
     }
+
+    @GetMapping("/getOrdsByUserId")
+    public Result getOrdsByUserId(@RequestParam int userId) {
+        System.out.println("收到根据用户ID获取订单的请求，用户ID: " + userId);
+        return ordService.getOrdsByUserId(userId);
+    }
 }

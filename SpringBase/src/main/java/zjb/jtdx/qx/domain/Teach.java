@@ -25,6 +25,10 @@ public class Teach {
     @JsonProperty("teach_name")
     private String teachName;
 
+    @TableField("teach_img")
+    @JsonProperty("teach_img")
+    private String teachImg;
+
     @TableField("teach_phone")
     @JsonProperty("teach_phone")
     private String teachPhone;
@@ -32,4 +36,8 @@ public class Teach {
     @TableField("teach_pass")
     @JsonProperty("teach_pass")
     private String teachPass;
+
+    @TableField("teach_txt")
+    @JsonProperty("teach_txt")
+    private String teachTxt;
 }

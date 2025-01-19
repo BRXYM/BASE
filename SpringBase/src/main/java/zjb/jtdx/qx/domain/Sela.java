@@ -28,4 +28,8 @@ public class Sela {
     @TableField("user_id")
     @JsonProperty("user_id")
     private Integer userId;
+
+    @TableField("sela_time")
+    @JsonProperty("sela_time")
+    private String selaTime;
 }

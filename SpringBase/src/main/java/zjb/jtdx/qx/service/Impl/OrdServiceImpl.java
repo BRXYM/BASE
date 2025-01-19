@@ -73,4 +73,16 @@ public class OrdServiceImpl implements OrdService {
             return Result.fail("对象不存在");
         }
     }
+
+    @Override
+    public Result getOrdsByUserId(int userId) {
+        QueryWrapper<Ord> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+        List<Ord> list = ordMapper.selectList(queryWrapper);
+        if (list != null && !list.isEmpty()) {
+            return Result.success(list, "获取成功");
+        } else {
+            return Result.fail("列表为空");
+        }
+    }
 }

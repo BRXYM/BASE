@@ -11,4 +11,5 @@ public interface ClaService {
     Result deleteCla(int claId);
     Result updateCla(Cla cla);
     Result getClaById(int claId);
+    Result getClasByTeacherId(int teacherId);
 }

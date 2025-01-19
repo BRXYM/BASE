@@ -27,6 +27,14 @@ public class Good {
     @JsonProperty("good_name")
     private String goodName;
 
+    @TableField("good_img")
+    @JsonProperty("good_img")
+    private String goodImg;
+
+    @TableField("good_txt")
+    @JsonProperty("good_txt")
+    private String goodTxt;
+
     @TableField("good_price")
     @JsonProperty("good_price")
     private BigDecimal goodPrice;

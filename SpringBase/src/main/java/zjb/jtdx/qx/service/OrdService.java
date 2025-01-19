@@ -11,4 +11,5 @@ public interface OrdService {
     Result deleteOrd(int ordId);
     Result updateOrd(Ord ord);
     Result getOrdById(int ordId);
+    Result getOrdsByUserId(int userId);
 }

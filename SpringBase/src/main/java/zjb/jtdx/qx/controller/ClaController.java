@@ -42,4 +42,10 @@ public class ClaController {
         System.out.println("收到获取课程的请求，课程ID: " + claId);
         return claService.getClaById(claId);
     }
+
+    @GetMapping("/getClasByTeacherId")
+    public Result getClasByTeacherId(@RequestParam int teacherId) {
+        System.out.println("收到根据教师ID获取课程的请求，教师ID: " + teacherId);
+        return claService.getClasByTeacherId(teacherId);
+    }
 }

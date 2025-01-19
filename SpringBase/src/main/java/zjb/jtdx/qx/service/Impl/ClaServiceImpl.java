@@ -73,4 +73,16 @@ public class ClaServiceImpl implements ClaService {
             return Result.fail("对象不存在");
         }
     }
+
+    @Override
+    public Result getClasByTeacherId(int teacherId) {
+        QueryWrapper<Cla> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("teach_id", teacherId);
+        List<Cla> list = claMapper.selectList(queryWrapper);
+        if (list != null && !list.isEmpty()) {
+            return Result.success(list, "获取成功");
+        } else {
+            return Result.fail("列表为空");
+        }
+    }
 }
