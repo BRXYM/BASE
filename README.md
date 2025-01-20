@@ -47,3 +47,6 @@ mybatis-plus
 https://baomidou.com/
 ```
 
+
+
+更改为获取所有表，然后再单独获取表的结构

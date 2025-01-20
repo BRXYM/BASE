@@ -1,19 +1,17 @@
 <template>
-
-<h2>APP</h2>
-<el-button @click="table()">表格</el-button>
-<!-- <RouterLink to="/table">表格</RouterLink> -->
-
-<RouterView></RouterView>
+  <div class="common-layout">
+    <el-container>
+      <el-header>
+        <RouterView name="app_header"></RouterView>
+      </el-header>
+      <el-container>
+        <el-aside width="200px">
+          <RouterView name="app_aside"></RouterView>
+        </el-aside>
+        <el-main>
+          <RouterView name="app_main"></RouterView>
+        </el-main>
+      </el-container>
+    </el-container>
+  </div>
 </template>
-
-<script setup lang="ts">
-import { RouterLink, RouterView,useRouter } from 'vue-router';
-const router = useRouter()
-
-function table(){
-    // 跳转到table页面
-    router.push({name:'table'});
-}
-
-</script>
