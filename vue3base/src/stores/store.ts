@@ -123,6 +123,25 @@ export const useAdmStore = defineStore("adm", {
                 console.error("获取表数据失败:", error);
                 throw error;
             }
+        },
+        // 新增方法：执行插入操作
+        async insertRecord(tableName: string, record: Record<string, any>) {
+            try {
+                // 构建插入 SQL 语句
+                const columnNames = Object.keys(record).join(', ');
+                const values = Object.values(record).map(value => `'${value}'`).join(', ');
+                const sql = `INSERT INTO ${tableName} (${columnNames}) VALUES (${values})`;
+                console.log('Insert SQL:', sql);
+
+                // 执行插入操作
+                const result = await executeInsertSql(sql);
+                ElMessage.success("插入成功");
+                return result;
+            } catch (error) {
+                ElMessage.error("执行插入 SQL 失败");
+                console.error("执行插入 SQL 失败:", error);
+                throw error;
+            }
         }
     },
 });
