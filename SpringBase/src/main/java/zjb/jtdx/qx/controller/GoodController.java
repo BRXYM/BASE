@@ -25,7 +25,7 @@ public class GoodController {
         return goodService.addGood(good);
     }
 
-    @PostMapping("/deleteGood")
+    @GetMapping("/deleteGood")
     public Result deleteGood(@RequestParam int goodId) {
         System.out.println("收到删除商品的请求，商品ID: " + goodId);
         return goodService.deleteGood(goodId);

@@ -104,7 +104,7 @@ export const addGood = async (good: Partial<Good>) => {
  * @param goodId 商品ID
  */
 export const deleteGood = async (goodId: number) => {
-    return axios.post(`${API_URL}/good/deleteGood`, { goodId });
+    return axios.get(`${API_URL}/good/deleteGood`, { params: { goodId }});
 };
 
 /**
