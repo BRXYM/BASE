@@ -11,4 +11,5 @@ public interface TeachService {
     Result deleteTeach(int teachId);
     Result updateTeach(Teach teach);
     Result getTeachById(int teachId);
+    Result login(String teachPhone, String teachPass);
 }

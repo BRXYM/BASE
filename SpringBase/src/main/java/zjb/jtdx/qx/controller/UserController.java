@@ -23,7 +23,7 @@ import zjb.jtdx.qx.utils.Result;
 @RequestMapping("/user")
 public class UserController {
     @Resource
-    private UserService userService;
+        private UserService userService;
 
     /**
      * 获取所有用户

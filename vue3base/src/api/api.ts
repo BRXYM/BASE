@@ -45,6 +45,13 @@ export const updateUser = async (user: Partial<User>) => {
 
 // Teach API
 /**
+ * 教师登录
+ * @param teach 教师信息
+ */
+export const loginTeach = async (teach: Partial<Teach>) => {
+    return axios.post(`${API_URL}/teach/login`, teach);
+};
+/**
  * 添加教学信息
  * @param teach 教学信息
  */

@@ -11,6 +11,7 @@
     <el-menu-item index="class">全部课程</el-menu-item>
     <el-menu-item index="teacher">全部教练</el-menu-item>
     <el-menu-item index="login" v-if="islogin === 0" @click="islogin = 2">登录</el-menu-item>
+    <el-menu-item index="teacher-login" v-if="islogin === 0" @click="islogin = 4">教师登录</el-menu-item>
     <el-sub-menu index="nologin" v-if="islogin === 1">
       <template #title>
         <el-avatar :size="30" :src="FILE_URL + '/' + currentUser?.user_img" fit="cover" />
@@ -39,7 +40,6 @@
         <el-input v-model="userForm.user_pass" type="password" autocomplete="off" />
       </el-form-item>
       <el-form-item>
-        
         <el-button type="primary" @click="login(userForm)">
           登录
         </el-button>
@@ -47,12 +47,9 @@
         <el-button @click="islogin = 0">关闭登录页面</el-button>
         <br>
         <el-button @click="islogin = 3, clearUser()" style="margin-top: 10px;">没有用户？点击这里</el-button>
-        
       </el-form-item>
     </el-form>
     <div>
-      
-
       <el-drawer
         v-model="innerDrawer"
         title="注册"
@@ -97,6 +94,31 @@
       </el-drawer>
     </div>
   </el-drawer>
+  <el-drawer
+    v-model="teacherDrawer"
+    title="教师登录"
+    size="40%"
+    :close-on-click-modal="false"
+    :close-on-press-escape="false"
+    :show-close="false"
+    direction="ttb"
+  >
+    <!-- 教师登录表单 -->
+    <el-form style="max-width: 100%" :model="teacherForm" status-icon label-width="auto">
+      <el-form-item label="手机号" prop="userphone">
+        <el-input v-model="teacherForm.teach_phone" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="密码" prop="password">
+        <el-input v-model="teacherForm.teach_pass" type="password" autocomplete="off" />
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="teacherLogin(teacherForm)">
+          登录
+        </el-button>
+        <el-button @click="islogin = 0">关闭登录页面</el-button>
+      </el-form-item>
+    </el-form>
+  </el-drawer>
 </template>
 
 <script lang="ts" setup>
@@ -107,9 +129,13 @@ import { ElMessageBox, type UploadFile } from 'element-plus'
 import { useUserStore } from '@/stores/store'
 import { ElMessage } from 'element-plus'
 import { FILE_URL, UPLOAD_URL } from '@/config'
-import type { User } from '@/type/type'
+import type { User,Teach } from '@/type/type'
 import { Plus, Delete, ZoomIn } from '@element-plus/icons-vue'
 import type { UploadProps } from 'element-plus'
+import {useTeachStore} from "@/stores/store";
+import Teacher from "@/components/teachers/Teacher.vue";
+const teachStore = useTeachStore()
+const {isTeacherLogin,teacherLogin} = teachStore
 
 const userStore = useUserStore()
 const { islogin, currentUser } = storeToRefs(userStore)
@@ -117,6 +143,7 @@ const { login, regist, setUserNull } = userStore
 
 const drawer = ref(false)
 const innerDrawer = ref(false)
+const teacherDrawer = ref(false)
 
 const userForm = ref<User>({
   user_id: null,
@@ -124,6 +151,10 @@ const userForm = ref<User>({
   user_name: null,
   user_phone: null,
   user_pass: null
+})
+
+const teacherForm = ref<Teach>({
+
 })
 
 const router = useRouter()
@@ -135,6 +166,7 @@ function clearUser() {
   userForm.value.user_phone = null
   userForm.value.user_pass = null
 }
+
 
 const activeIndex = ref('1')
 
@@ -149,24 +181,46 @@ watch(() => userStore.currentUser, (newValue) => {
   }
 })
 
+watch(()=>teachStore.currentTeach, (newValue)=>{
+  if (newValue?.teach_id != null) {
+    islogin.value = 5
+    teacherDrawer.value = false
+  }
+})
+
 watch(() => islogin.value, (newValue) => {
   switch (newValue) {
-    case 0:
+    case 0: // 初始化页面
       drawer.value = false
       innerDrawer.value = false
+      teacherDrawer.value = false
       break
-    case 1:
+    case 1: // 用户登录成功
       drawer.value = false
       innerDrawer.value = false
+      teacherDrawer.value = false
       break
-    case 2:
+    case 2: // 用户登录
       innerDrawer.value = false
       drawer.value = true
+      teacherDrawer.value = false
       break
-    case 3:
+    case 3: // 用户注册
       drawer.value = false
       innerDrawer.value = true
+      teacherDrawer.value = false
       userForm.value.user_img = null
+      break
+    case 4: // 教师登录页面
+      drawer.value = false
+      innerDrawer.value = false
+      teacherDrawer.value = true
+      break
+    case 5: // 教师登录
+      drawer.value = false
+      innerDrawer.value = false
+      teacherDrawer.value = false
+      router.push({name:'admin'})
       break
   }
 })
@@ -200,6 +254,7 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
   }
   return true
 }
+
 </script>
 
 <style>
@@ -246,6 +301,6 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
 }
 .el-form {
   max-width: 100%;
-  width: 300px; 
+  width: 300px;
 }
 </style>

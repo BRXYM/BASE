@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AdminProfile: typeof import('./src/components/teacherAdmin/AdminProfile.vue')['default']
     Class: typeof import('./src/components/classes/Class.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
@@ -48,6 +49,9 @@ declare module 'vue' {
     Shop: typeof import('./src/components/shops/Shop.vue')['default']
     TableTest: typeof import('./src/components/book/TableTest.vue')['default']
     Teacher: typeof import('./src/components/teachers/Teacher.vue')['default']
+    TeacherMenuTop: typeof import('./src/components/teacherAdmin/teacherMenuTop.vue')['default']
+    UploadCla: typeof import('./src/components/teacherAdmin/UploadCla.vue')['default']
+    UploadGood: typeof import('./src/components/teacherAdmin/UploadGood.vue')['default']
     Welcome: typeof import('./src/components/Welcome.vue')['default']
   }
   export interface ComponentCustomProperties {

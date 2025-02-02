@@ -42,4 +42,9 @@ public class TeachController {
         System.out.println("收到获取教练的请求，教练ID: " + teachId);
         return teachService.getTeachById(teachId);
     }
+    @PostMapping("/login")
+    public Result login(@RequestBody Teach teach) {
+        System.out.println("收到登录请求," + teach);
+        return teachService.login(teach.getTeachPhone(), teach.getTeachPass());
+    }
 }

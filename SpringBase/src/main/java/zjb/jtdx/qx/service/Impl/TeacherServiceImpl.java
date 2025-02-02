@@ -73,4 +73,17 @@ public class TeacherServiceImpl implements TeachService {
             return Result.fail("对象不存在");
         }
     }
+
+    @Override
+    public Result login(String teachPhone, String teachPass) {
+        QueryWrapper<Teach> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("teach_phone", teachPhone).eq("teach_pass", teachPass);
+        Teach teach = teachMapper.selectOne(queryWrapper);
+
+        if (teach != null) {
+            return Result.success(teach, "登录成功");
+        } else {
+            return Result.fail("手机号或密码错误");
+        }
+    }
 }
