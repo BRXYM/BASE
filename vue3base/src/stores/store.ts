@@ -387,6 +387,7 @@ export const useClaStore = defineStore('cla', {
             const {data: {statusCode, code, list, message}} = await addCla(this.currentClass);
             if (statusCode === 200) {
                 this.setCurrentClassNull()
+                await this.fetchClasses()
                 ElMessage.success("添加成功");
             } else {
                 ElMessage.error(message);
@@ -398,6 +399,7 @@ export const useClaStore = defineStore('cla', {
          * @param teachId - 教师ID
          */
         async getClasByTeacherId(teachId: number) {
+            this.classes = null;
             const {data: {statusCode, code, list, message}} = await getClasByTeacherId(teachId);
             if (statusCode === 200) {
                 this.classes = list as Cla[];
@@ -413,7 +415,6 @@ export const useClaStore = defineStore('cla', {
         async deleteCla(id: number) {
             const {data: {statusCode, code, list, message}} = await deleteCla(id);
             if (statusCode === 200) {
-                await this.fetchClasses();
             } else {
                 ElMessage.error(message);
             }
@@ -426,7 +427,6 @@ export const useClaStore = defineStore('cla', {
         async updateCla(cla: Partial<Cla>) {
             const {data: {statusCode, code, list, message}} = await updateCla(cla);
             if (statusCode === 200) {
-                await this.fetchClasses();
             } else {
                 ElMessage.error(message);
             }

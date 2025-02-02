@@ -25,7 +25,7 @@ public class ClaController {
         return claService.addCla(cla);
     }
 
-    @PostMapping("/deleteCla")
+    @GetMapping("/deleteCla")
     public Result deleteCla(@RequestParam int claId) {
         System.out.println("收到删除课程的请求，课程ID: " + claId);
         return claService.deleteCla(claId);

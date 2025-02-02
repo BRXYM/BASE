@@ -20,7 +20,6 @@ const router = createRouter({
         // 主页
         {
             path: '/',
-            name: 'home',
             components: {
                 'app-header': Menu,
                 'app-main': Welcome

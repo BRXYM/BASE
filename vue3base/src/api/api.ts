@@ -184,7 +184,7 @@ export const addCla = async (cla: Partial<Cla>) => {
  * @param claId 课程ID
  */
 export const deleteCla = async (claId: number) => {
-    return axios.post(`${API_URL}/cla/deleteCla`, { claId });
+    return axios.get(`${API_URL}/cla/deleteCla`, { params: { claId} });
 };
 
 /**
